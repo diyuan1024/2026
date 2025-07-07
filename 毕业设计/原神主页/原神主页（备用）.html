@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神角色主页</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f2ff 0%, #f0f5ff 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="0,100 100,0 100,100" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 100% 100%;
+            pointer-events: none;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 搜索区域 */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .search-box {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .search-btn {
+            padding: 0 25px;
+            background: #3a7bd5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .search-btn:hover {
+            background: #2c63a8;
+        }
+        
+        /* 过滤区域 */
+        .filters-container {
+            margin-bottom: 30px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .filter-group-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #3a7bd5;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-group-title i {
+            margin-right: 8px;
+        }
+        
+        .filter-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.85);
+            border: 2px solid #3a7bd5;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-btn:hover {
+            background: #3a7bd5;
+            color: white;
+        }
+        
+        .filter-btn.active {
+            background: #3a7bd5;
+            color: white;
+            box-shadow: 0 0 15px rgba(58, 123, 213, 0.5);
+        }
+        
+        .filter-btn i {
+            margin-right: 8px;
+        }
+        
+        /* 角色卡片网格布局 */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 35px;
+        }
+        
+        /* 角色卡片样式 */
+        .character-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            height: 450px;
+            transform: translateY(0);
+        }
+        
+        .character-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
+        }
+        
+        .character-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.3));
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* 角色头像 */
+        .character-avatar-link {
+            display: block;
+            width: 100%;
+            height: 320px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .character-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .character-card:hover .character-avatar {
+            transform: scale(1.05);
+        }
+        
+        /* 添加一个查看详情提示 */
+        .character-view-details {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+        
+        .character-avatar-link:hover .character-view-details {
+            transform: translateY(0);
+        }
+        
+        /* 角色信息 */
+        .character-info {
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .character-name {
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .character-name::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            margin: 8px auto 0;
+            border-radius: 10px;
+        }
+        
+        .character-description {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: center;
+            max-height: 3.6em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        
+        .character-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .character-rarity {
+            color: #d4af37;
+        }
+        
+        /* 元素颜色 */
+        .dendro { color: #a0d751; }
+        .electro { color: #c57bfe; }
+        .hydro { color: #3cc2f1; }
+        .pyro { color: #ff7e7b; }
+        .cryo { color: #90d0ff; }
+        .anemo { color: #74decc; }
+        .geo { color: #f9a25a; }
+        
+        /* 角色徽章 */
+        .character-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* 底部样式 */
+        footer {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 0;
+            text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* 动画效果 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .paimon {
+            position: absolute;
+            top: 0;
+            right: 50px;
+            animation: float 5s ease-in-out infinite;
+            opacity: 0.3;
+            font-size: 4rem;
+            z-index: 0;
+        }
+        
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 加载动画 */
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .loader-circle {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3a7bd5;
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 无结果提示 */
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 50px;
+            color: #777;
+        }
+        
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #3a7bd5;
+        }
+        
+        /* 角色计数 */
+        .results-count {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #3a7bd5;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>原神角色主页</h1>
+        <p class="subtitle">探索提瓦特大陆上的英雄们</p>
+        <div class="paimon">米哈游</div>
+    </header>
+    
+    <div class="container">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索角色名、元素或武器类型...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <div class="filters-container">
+            <!-- 星级过滤行 -->
+            <div class="filter-group">
+                <div class="filter-group-title">
+                    星级
+                </div>
+                <div class="filter-row">
+                    <div class="filter-btn active" data-filter="all-stars">
+                    全部
+                    </div>
+                    <div class="filter-btn" data-filter="5-star">
+                        五星角色
+                    </div>
+                    <div class="filter-btn" data-filter="4-star">
+                        四星角色
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 元素过滤行 -->
+            <div class="filter-group">
+                <div class="filter-group-title">
+                    元素
+                </div>
+                <div class="filter-row">
+                    <div class="filter-btn active" data-filter="all-elements">
+                        全部
+                    </div>
+                    <div class="filter-btn" data-filter="dendro">
+                        </i> 草元素
+                    </div>
+                    <div class="filter-btn" data-filter="electro">
+                        雷元素
+                    </div>
+                    <div class="filter-btn" data-filter="hydro">
+                        水元素
+                    </div>
+                    <div class="filter-btn" data-filter="pyro">
+                         火元素
+                    </div>
+                    <div class="filter-btn" data-filter="cryo">
+                        冰元素
+                    </div>
+                    <div class="filter-btn" data-filter="anemo">
+                        风元素
+                    </div>
+                    <div class="filter-btn" data-filter="geo">
+                        岩元素
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-count" id="resultsCount">共找到 4 位角色</div>
+        
+        <div class="loader">
+            <div class="loader-circle"></div>
+            <p>正在加载角色数据...</p>
+        </div>
+        
+        <div class="characters-grid" id="charactersGrid">
+            <!-- 角色卡片将通过JS动态生成 -->
+        </div>
+    </div>
+    
+    <footer>
+        <p class="copyright">© 2025 原神角色主页 | 本网站仅供学习与爱好者交流使用 | 非官方网站</p>
+    </footer>
+    
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <script>
+        // 角色数据 (添加了detailUrl属性)
+        const characters = [
+    {
+        id: "nahida",
+        name: "纳西妲",
+        element: "dendro",
+        rarity: 5,
+        weapon: "法器",
+        region: "须弥",
+        avatar: "纳西妲/纳西妲立绘.jpg",
+        description: "须弥五星法器角色",
+        title: "智慧之神",
+        detailUrl: "纳西妲/纳西妲毕业.html"
+    },
+    {
+        id: "kuki - shinobu",
+        name: "久岐忍",
+        element: "electro",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "稻妻",
+        avatar: "久岐忍/久岐忍立绘.jpg",
+        description: "稻妻四星单手剑角色",
+        title: "烦恼刈除",
+        detailUrl: "久岐忍/久岐忍毕业.html"
+    },
+    {
+        id: "xingqiu",
+        name: "行秋",
+        element: "hydro",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "璃月",
+        avatar: "行秋/行秋立绘.jpg",
+        description: "璃月四星单手剑角色",
+        title: "书剑双绝",
+        detailUrl: "行秋/行秋毕业.html"
+    },
+    {
+        id: "xiangling",
+        name: "香菱",
+        element: "pyro",
+        rarity: 4,
+        weapon: "长柄武器",
+        region: "璃月",
+        avatar: "香菱/香菱立绘.jpg",
+        description: "璃月四星长柄武器角色",
+        title: "万民百味",
+        detailUrl: "香菱/香菱毕业.html"
+    },
+    // 以下是新增角色
+    {
+        id: "traveler",
+        name: "旅行者",
+        element: "various",
+        rarity: 5,
+        weapon: "various",
+        region: "N/A",
+        avatar: "traveler/traveler立绘.jpg",
+        description: "可切换元素的五星角色",
+        title: "命运的旅行者",
+        detailUrl: "traveler/traveler毕业.html"
+    },
+    {
+        id: "amber",
+        name: "安柏",
+        element: "pyro",
+        rarity: 4,
+        weapon: "弓",
+        region: "蒙德",
+        avatar: "amber/amber立绘.jpg",
+        description: "蒙德四星弓角色",
+        title: "闪耀的火花",
+        detailUrl: "amber/amber毕业.html"
+    },
+    {
+        id: "kaeya",
+        name: "凯亚",
+        element: "cryo",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "蒙德",
+        avatar: "kaeya/kaeya立绘.jpg",
+        description: "蒙德四星单手剑角色",
+        title: "霜铠冰魂",
+        detailUrl: "kaeya/kaeya毕业.html"
+    },
+    {
+        id: "lisa",
+        name: "丽莎",
+        element: "electro",
+        rarity: 4,
+        weapon: "法器",
+        region: "蒙德",
+        avatar: "lisa/lisa立绘.jpg",
+        description: "蒙德四星法器角色",
+        title: "蔷薇魔女",
+        detailUrl: "lisa/lisa毕业.html"
+    },
+    {
+        id: "barbara",
+        name: "芭芭拉",
+        element: "hydro",
+        rarity: 4,
+        weapon: "法器",
+        region: "蒙德",
+        avatar: "barbara/barbara立绘.jpg",
+        description: "蒙德四星法器角色",
+        title: "闪耀偶像",
+        detailUrl: "barbara/barbara毕业.html"
+    },
+    {
+        id: "razor",
+        name: "雷泽",
+        element: "electro",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "蒙德",
+        avatar: "razor/razor立绘.jpg",
+        description: "蒙德四星双手剑角色",
+        title: "狼少年",
+        detailUrl: "razor/razor毕业.html"
+    },
+    {
+        id: "beidou",
+        name: "北斗",
+        element: "electro",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "璃月",
+        avatar: "beidou/beidou立绘.jpg",
+        description: "璃月四星双手剑角色",
+        title: "无冕的龙王",
+        detailUrl: "beidou/beidou毕业.html"
+    },
+    {
+        id: "ningguang",
+        name: "凝光",
+        element: "geo",
+        rarity: 4,
+        weapon: "法器",
+        region: "璃月",
+        avatar: "ningguang/ningguang立绘.jpg",
+        description: "璃月四星法器角色",
+        title: "群玉阁之主",
+        detailUrl: "ningguang/ningguang毕业.html"
+    },
+    {
+        id: "fischl",
+        name: "菲谢尔",
+        element: "electro",
+        rarity: 4,
+        weapon: "弓",
+        region: "蒙德",
+        avatar: "fischl/fischl立绘.jpg",
+        description: "蒙德四星弓角色",
+        title: "断罪之皇女",
+        detailUrl: "fischl/fischl毕业.html"
+    },
+    {
+        id: "bennett",
+        name: "班尼特",
+        element: "pyro",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "蒙德",
+        avatar: "bennett/bennett立绘.jpg",
+        description: "蒙德四星单手剑角色",
+        title: "命运试金石",
+        detailUrl: "bennett/bennett毕业.html"
+    },
+    {
+        id: "noelle",
+        name: "诺艾尔",
+        element: "geo",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "蒙德",
+        avatar: "noelle/noelle立绘.jpg",
+        description: "蒙德四星双手剑角色",
+        title: "未授勋之花",
+        detailUrl: "noelle/noelle毕业.html"
+    },
+    {
+        id: "chongyun",
+        name: "重云",
+        element: "cryo",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "璃月",
+        avatar: "chongyun/chongyun立绘.jpg",
+        description: "璃月四星单手剑角色",
+        title: "云来剑法传人",
+        detailUrl: "chongyun/chongyun毕业.html"
+    },
+    {
+        id: "sucrose",
+        name: "砂糖",
+        element: "anemo",
+        rarity: 4,
+        weapon: "法器",
+        region: "蒙德",
+        avatar: "sucrose/sucrose立绘.jpg",
+        description: "蒙德四星法器角色",
+        title: "无害甜度",
+        detailUrl: "sucrose/sucrose毕业.html"
+    },
+    {
+        id: "jean",
+        name: "琴",
+        element: "anemo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "蒙德",
+        avatar: "jean/jean立绘.jpg",
+        description: "蒙德五星单手剑角色",
+        title: "蒲公英骑士",
+        detailUrl: "jean/jean毕业.html"
+    },
+    {
+        id: "diluc",
+        name: "迪卢克",
+        element: "pyro",
+        rarity: 5,
+        weapon: "双手剑",
+        region: "蒙德",
+        avatar: "diluc/diluc立绘.jpg",
+        description: "蒙德五星双手剑角色",
+        title: "晨曦酒庄庄主",
+        detailUrl: "diluc/diluc毕业.html"
+    },
+    {
+        id: "qiqi",
+        name: "七七",
+        element: "cryo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "璃月",
+        avatar: "qiqi/qiqi立绘.jpg",
+        description: "璃月五星单手剑角色",
+        title: "冻冻回魂夜",
+        detailUrl: "qiqi/qiqi毕业.html"
+    },
+    {
+        id: "mona",
+        name: "莫娜",
+        element: "hydro",
+        rarity: 5,
+        weapon: "法器",
+        region: "蒙德",
+        avatar: "mona/mona立绘.jpg",
+        description: "蒙德五星法器角色",
+        title: "星天水镜",
+        detailUrl: "mona/mona毕业.html"
+    },
+    {
+        id: "keqing",
+        name: "刻晴",
+        element: "electro",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "璃月",
+        avatar: "keqing/keqing立绘.jpg",
+        description: "璃月五星单手剑角色",
+        title: "霆霓快雨",
+        detailUrl: "keqing/keqing毕业.html"
+    },
+    {
+        id: "venti",
+        name: "温迪",
+        element: "anemo",
+        rarity: 5,
+        weapon: "弓",
+        region: "蒙德",
+        avatar: "venti/venti立绘.jpg",
+        description: "蒙德五星弓角色",
+        title: "风与牧歌的少年",
+        detailUrl: "venti/venti毕业.html"
+    },
+    {
+        id: "klee",
+        name: "可莉",
+        element: "pyro",
+        rarity: 5,
+        weapon: "法器",
+        region: "蒙德",
+        avatar: "klee/klee立绘.jpg",
+        description: "蒙德五星法器角色",
+        title: "逃跑的太阳",
+        detailUrl: "klee/klee毕业.html"
+    },
+    {
+        id: "diona",
+        name: "迪奥娜",
+        element: "cryo",
+        rarity: 4,
+        weapon: "弓",
+        region: "蒙德",
+        avatar: "diona/diona立绘.jpg",
+        description: "蒙德四星弓角色",
+        title: "小猫少女",
+        detailUrl: "diona/diona毕业.html"
+    },
+    {
+        id: "tartaglia",
+        name: "达达利亚",
+        element: "hydro",
+        rarity: 5,
+        weapon: "弓",
+        region: "至冬",
+        avatar: "tartaglia/tartaglia立绘.jpg",
+        description: "至冬五星弓角色",
+        title: "愚人众执行官十一席",
+        detailUrl: "tartaglia/tartaglia毕业.html"
+    },
+    {
+        id: "xin yan",
+        name: "辛焱",
+        element: "pyro",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "璃月",
+        avatar: "xin yan/xin yan立绘.jpg",
+        description: "璃月四星双手剑角色",
+        title: "燥热旋律",
+        detailUrl: "xin yan/xin yan毕业.html"
+    },
+    {
+        id: "zhongli",
+        name: "钟离",
+        element: "geo",
+        rarity: 5,
+        weapon: "长柄武器",
+        region: "璃月",
+        avatar: "zhongli/zhongli立绘.jpg",
+        description: "璃月五星长柄武器角色",
+        title: "尘世闲游",
+        detailUrl: "zhongli/zhongli毕业.html"
+    },
+    {
+        id: "albedo",
+        name: "阿贝多",
+        element: "geo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "蒙德",
+        avatar: "albedo/albedo立绘.jpg",
+        description: "蒙德五星单手剑角色",
+        title: "白垩之子",
+        detailUrl: "albedo/albedo毕业.html"
+    },
+    {
+        id: "gan yu",
+        name: "甘雨",
+        element: "cryo",
+        rarity: 5,
+        weapon: "弓",
+        region: "璃月",
+        avatar: "gan yu/gan yu立绘.jpg",
+        description: "璃月五星弓角色",
+        title: "循循守月",
+        detailUrl: "gan yu/gan yu毕业.html"
+    },
+    {
+        id: "hutao",
+        name: "胡桃",
+        element: "pyro",
+        rarity: 5,
+        weapon: "长柄武器",
+        region: "璃月",
+        avatar: "hutao/hutao立绘.jpg",
+        description: "璃月五星长柄武器角色",
+        title: "往生堂第七十七代堂主",
+        detailUrl: "hutao/hutao毕业.html"
+    },
+    {
+        id: "rosaria",
+        name: "罗莎莉亚",
+        element: "cryo",
+        rarity: 4,
+        weapon: "长柄武器",
+        region: "蒙德",
+        avatar: "rosaria/rosaria立绘.jpg",
+        description: "蒙德四星长柄武器角色",
+        title: "棘冠恩典",
+        detailUrl: "rosaria/rosaria毕业.html"
+    },
+    {
+        id: "yanfei",
+        name: "烟绯",
+        element: "pyro",
+        rarity: 4,
+        weapon: "法器",
+        region: "璃月",
+        avatar: "yanfei/yanfei立绘.jpg",
+        description: "璃月四星法器角色",
+        title: "智巧灵蕈大侦探",
+        detailUrl: "yanfei/yanfei毕业.html"
+    },
+    {
+        id: "eula",
+        name: "优菈",
+        element: "cryo",
+        rarity: 5,
+        weapon: "双手剑",
+        region: "蒙德",
+        avatar: "eula/eula立绘.jpg",
+        description: "蒙德五星双手剑角色",
+        title: "浪花骑士",
+        detailUrl: "eula/eula毕业.html"
+    },
+    {
+        id: "kazuha",
+        name: "枫原万叶",
+        element: "anemo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "稻妻",
+        avatar: "kazuha/kazuha立绘.jpg",
+        description: "稻妻五星单手剑角色",
+        title: "红叶逐荒波",
+        detailUrl: "kazuha/kazuha毕业.html"
+    },
+    {
+        id: "ayaka",
+        name: "神里绫华",
+        element: "cryo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "稻妻",
+        avatar: "ayaka/ayaka立绘.jpg",
+        description: "稻妻五星单手剑角色",
+        title: "白鹭公主",
+        detailUrl: "ayaka/ayaka毕业.html"
+    },
+    {
+        id: "sayu",
+        name: "早柚",
+        element: "anemo",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "稻妻",
+        avatar: "sayu/sayu立绘.jpg",
+        description: "稻妻四星双手剑角色",
+        title: "忍里之貉",
+        detailUrl: "sayu/sayu毕业.html"
+    },
+    {
+        id: "yae miko",
+        name: "八重神子",
+        element: "electro",
+        rarity: 5,
+        weapon: "法器",
+        region: "稻妻",
+        avatar: "yae miko/yae miko立绘.jpg",
+        description: "稻妻五星法器角色",
+        title: "鸣神大社八重宫司",
+        detailUrl: "yae miko/yae miko毕业.html"
+    },
+    {
+        id: "yoimiya",
+        name: "宵宫",
+        element: "pyro",
+        rarity: 5,
+        weapon: "弓",
+        region: "稻妻",
+        avatar: "yoimiya/yoimiya立绘.jpg",
+        description: "稻妻五星弓角色",
+        title: "琉金火光",
+        detailUrl: "yoimiya/yoimiya毕业.html"
+    },
+    {
+        id: "thoma",
+        name: "托马",
+        element: "pyro",
+        rarity: 4,
+        weapon: "长柄武器",
+        region: "稻妻",
+        avatar: "thoma/thoma立绘.jpg",
+        description: "稻妻四星长柄武器角色",
+        title: "家政官",
+        detailUrl: "thoma/thoma毕业.html"
+    },
+    {
+        id: "itto",
+        name: "荒泷一斗",
+        element: "geo",
+        rarity: 5,
+        weapon: "双手剑",
+        region: "稻妻",
+        avatar: "itto/itto立绘.jpg",
+        description: "稻妻五星双手剑角色",
+        title: "赤鬼军团大首领",
+        detailUrl: "itto/itto毕业.html"
+    },
+    {
+        id: "gorou",
+        name: "五郎",
+        element: "geo",
+        rarity: 4,
+        weapon: "弓",
+        region: "稻妻",
+        avatar: "gorou/gorou立绘.jpg",
+        description: "稻妻四星弓角色",
+        title: "戎犬锵锵",
+        detailUrl: "gorou/gorou毕业.html"
+    },
+    {
+        id: "sara",
+        name: "九条裟罗",
+        element: "electro",
+        rarity: 4,
+        weapon: "弓",
+        region: "稻妻",
+        avatar: "sara/sara立绘.jpg",
+        description: "稻妻四星弓角色",
+        title: "天领奉行大将",
+        detailUrl: "sara/sara毕业.html"
+    },
+    {
+        id: "kokomi",
+        name: "珊瑚宫心海",
+        element: "hydro",
+        rarity: 5,
+        weapon: "法器",
+        region: "稻妻",
+        avatar: "kokomi/kokomi立绘.jpg",
+        description: "稻妻五星法器角色",
+        title: "海祇岛现人神巫女",
+        detailUrl: "kokomi/kokomi毕业.html"
+    },
+    {
+        id: "shinobu",
+        name: "久岐忍",
+        element: "electro",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "稻妻",
+        avatar: "shinobu/shinobu立绘.jpg",
+        description: "稻妻四星单手剑角色",
+        title: "烦恼刈除",
+        detailUrl: "shinobu/shinobu毕业.html"
+    },
+    {
+        id: "aloy",
+        name: "阿洛伊",
+        element: "cryo",
+        rarity: 5,
+        weapon: "弓",
+        region: "N/A",
+        avatar: "aloy/aloy立绘.jpg",
+        description: "联动五星弓角色",
+        title: "狩猎者",
+        detailUrl: "aloy/aloy毕业.html"
+    },
+    {
+        id: "yaoyao",
+        name: "瑶瑶",
+        element: "dendro",
+        rarity: 4,
+        weapon: "长柄武器",
+        region: "璃月",
+        avatar: "yaoyao/yaoyao立绘.jpg",
+        description: "璃月四星长柄武器角色",
+        title: "百草千灵",
+        detailUrl: "yaoyao/yaoyao毕业.html"
+    },
+    {
+        id: "nilou",
+        name: "妮露",
+        element: "hydro",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "须弥",
+        avatar: "nilou/nilou立绘.jpg",
+        description: "须弥五星单手剑角色",
+        title: "莲花酥的韵律",
+        detailUrl: "nilou/nilou毕业.html"
+    },
+    {
+        id: "cyno",
+        name: "赛诺",
+        element: "electro",
+        rarity: 5,
+        weapon: "长柄武器",
+        region: "须弥",
+        avatar: "cyno/cyno立绘.jpg",
+        description: "须弥五星长柄武器角色",
+        title: "大风纪官",
+        detailUrl: "cyno/cyno毕业.html"
+    },
+    {
+        id: "tighnari",
+        name: "提纳里",
+        element: "dendro",
+        rarity: 5,
+        weapon: "弓",
+        region: "须弥",
+        avatar: "tighnari/tighnari立绘.jpg",
+        description: "须弥五星弓角色",
+        title: "巡林官",
+        detailUrl: "tighnari/tighnari毕业.html"
+    },
+    {
+        id: "collei",
+        name: "柯莱",
+        element: "dendro",
+        rarity: 4,
+        weapon: "弓",
+        region: "须弥",
+        avatar: "collei/collei立绘.jpg",
+        description: "须弥四星弓角色",
+        title: "森林的孩子",
+        detailUrl: "collei/collei毕业.html"
+    },
+    {
+        id: "dori",
+        name: "多莉",
+        element: "electro",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "须弥",
+        avatar: "dori/dori立绘.jpg",
+        description: "须弥四星双手剑角色",
+        title: "精明的商人",
+        detailUrl: "dori/dori毕业.html"
+    },
+    {
+        id: "layla",
+        name: "莱依拉",
+        element: "cryo",
+        rarity: 4,
+        weapon: "法器",
+        region: "须弥",
+        avatar: "layla/layla立绘.jpg",
+        description: "须弥四星法器角色",
+        title: "星夜占卜师",
+        detailUrl: "layla/layla毕业.html"
+    },
+    {
+        id: "faruzan",
+        name: "珐露珊",
+        element: "anemo",
+        rarity: 4,
+        weapon: "弓",
+        region: "须弥",
+        avatar: "faruzan/faruzan立绘.jpg",
+        description: "须弥四星弓角色",
+        title: "风纪官",
+        detailUrl: "faruzan/faruzan毕业.html"
+    },
+    {
+        id: "candace",
+        name: "坎蒂丝",
+        element: "hydro",
+        rarity: 4,
+        weapon: "长柄武器",
+        region: "须弥",
+        avatar: "candace/candace立绘.jpg",
+        description: "须弥四星长柄武器角色",
+        title: "黄金梦乡的守护者",
+        detailUrl: "candace/candace毕业.html"
+    },
+    {
+        id: "wanderer",
+        name: "流浪者",
+        element: "anemo",
+        rarity: 5,
+        weapon: "法器",
+        region: "稻妻",
+        avatar: "wanderer/wanderer立绘.jpg",
+        description: "稻妻五星法器角色",
+        title: "风流浪子",
+        detailUrl: "wanderer/wanderer毕业.html"
+    },
+    {
+        id: "baizhu",
+        name: "白术",
+        element: "dendro",
+        rarity: 5,
+        weapon: "法器",
+        region: "璃月",
+        avatar: "baizhu/baizhu立绘.jpg",
+        description: "璃月五星法器角色",
+        title: "不卜庐之主",
+        detailUrl: "baizhu/baizhu毕业.html"
+    },
+    {
+        id: "kaveh",
+        name: "卡维",
+        element: "dendro",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "须弥",
+        avatar: "kaveh/kaveh立绘.jpg",
+        description: "须弥四星单手剑角色",
+        title: "天才建筑师",
+        detailUrl: "kaveh/kaveh毕业.html"
+    },
+    {
+        id: "neuvillette",
+        name: "那维莱特",
+        element: "hydro",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "枫丹",
+        avatar: "neuvillette/neuvillette立绘.jpg",
+        description: "枫丹五星单手剑角色",
+        title: "最高审判官",
+        detailUrl: "neuvillette/neuvillette毕业.html"
+    },
+    {
+        id: "lynette",
+        name: "琳妮特",
+        element: "anemo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "枫丹",
+        avatar: "lynette/lynette立绘.jpg",
+        description: "枫丹五星单手剑角色",
+        title: "魔术助手",
+        detailUrl: "lynette/lynette毕业.html"
+    },
+    {
+        id: "lyney",
+        name: "林尼",
+        element: "pyro",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "枫丹",
+        avatar: "lyney/lyney立绘.jpg",
+        description: "枫丹五星单手剑角色",
+        title: "魔术大师",
+        detailUrl: "lyney/lyney毕业.html"
+    },
+    {
+        id: "freminet",
+        name: "弗雷曼尼",
+        element: "cryo",
+        rarity: 4,
+        weapon: "长柄武器",
+        region: "枫丹",
+        avatar: "freminet/freminet立绘.jpg",
+        description: "枫丹四星长柄武器角色",
+        title: "潜水员",
+        detailUrl: "freminet/freminet毕业.html"
+    },
+    {
+        id: "margaret",
+        name: "玛格丽特",
+        element: "pyro",
+        rarity: 4,
+        weapon: "法器",
+        region: "枫丹",
+        avatar: "margaret/margaret立绘.jpg",
+        description: "枫丹四星法器角色",
+        title: "火焰艺术家",
+        detailUrl: "margaret/margaret毕业.html"
+    },
+    {
+        id: "clorinde",
+        name: "克洛琳德",
+        element: "electro",
+        rarity: 5,
+        weapon: "双手剑",
+        region: "枫丹",
+        avatar: "clorinde/clorinde立绘.jpg",
+        description: "枫丹五星双手剑角色",
+        title: "格斗家",
+        detailUrl: "clorinde/clorinde毕业.html"
+    },
+    {
+        id: "navia",
+        name: "娜维娅",
+        element: "geo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "枫丹",
+        avatar: "navia/navia立绘.jpg",
+        description: "枫丹五星单手剑角色",
+        title: "贵族少女",
+        detailUrl: "navia/navia毕业.html"
+    },
+    {
+        id: "chevreuse",
+        name: "谢菲尔",
+        element: "anemo",
+        rarity: 4,
+        weapon: "弓",
+        region: "枫丹",
+        avatar: "chevreuse/chevreuse立绘.jpg",
+        description: "枫丹四星弓角色",
+        title: "风之追踪者",
+        detailUrl: "chevreuse/chevreuse毕业.html"
+    },
+    {
+        id: "cocogoat",
+        name: "可可利亚",
+        element: "cryo",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "至冬",
+        avatar: "cocogoat/cocogoat立绘.jpg",
+        description: "至冬四星双手剑角色",
+        title: "雪境守护者",
+        detailUrl: "cocogoat/cocogoat毕业.html"
+    },
+    {
+        id: "sigewinne",
+        name: "希格雯",
+        element: "hydro",
+        rarity: 4,
+        weapon: "法器",
+        region: "枫丹",
+        avatar: "sigewinne/sigewinne立绘.jpg",
+        description: "枫丹四星法器角色",
+        title: "海洋研究者",
+        detailUrl: "sigewinne/sigewinne毕业.html"
+    },
+    {
+        id: "fontaine traveler",
+        name: "枫丹旅行者",
+        element: "hydro",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "枫丹",
+        avatar: "fontaine traveler/fontaine traveler立绘.jpg",
+        description: "枫丹五星单手剑角色",
+        title: "海洋的旅人",
+        detailUrl: "fontaine traveler/fontaine traveler毕业.html"
+    },
+    {
+        id: "chiori",
+        name: "千织",
+        element: "dendro",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "稻妻",
+        avatar: "chiori/chiori立绘.jpg",
+        description: "稻妻四星单手剑角色",
+        title: "森林歌者",
+        detailUrl: "chiori/chiori毕业.html"
+    },
+    {
+        id: "kirei",
+        name: "绮礼",
+        element: "pyro",
+        rarity: 4,
+        weapon: "法器",
+        region: "璃月",
+        avatar: "kirei/kirei立绘.jpg",
+        description: "璃月四星法器角色",
+        title: "烟火设计师",
+        detailUrl: "kirei/kirei毕业.html"
+    },
+    {
+        id: "arlecchino",
+        name: "阿蕾奇诺",
+        element: "cryo",
+        rarity: 5,
+        weapon: "单手剑",
+        region: "至冬",
+        avatar: "arlecchino/arlecchino立绘.jpg",
+        description: "至冬五星单手剑角色",
+        title: "木偶戏班主",
+        detailUrl: "arlecchino/arlecchino毕业.html"
+    },
+    {
+        id: "bridget",
+        name: "布丽吉特",
+        element: "geo",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "枫丹",
+        avatar: "bridget/bridget立绘.jpg",
+        description: "枫丹四星双手剑角色",
+        title: "锻造少女",
+        detailUrl: "bridget/bridget毕业.html"
+    },
+    {
+        id: "kalpas",
+        name: "卡帕奇",
+        element: "electro",
+        rarity: 5,
+        weapon: "长柄武器",
+        region: "至冬",
+        avatar: "kalpas/kalpas立绘.jpg",
+        description: "至冬五星长柄武器角色",
+        title: "雷霆执行者",
+        detailUrl: "kalpas/kalpas毕业.html"
+    },
+    {
+        id: "furina",
+        name: "芙宁娜",
+        element: "hydro",
+        rarity: 5,
+        weapon: "法器",
+        region: "枫丹",
+        avatar: "furina/furina立绘.jpg",
+        description: "枫丹五星法器角色",
+        title: "水之神",
+        detailUrl: "furina/furina毕业.html"
+    },
+    {
+        id: "penthesilea",
+        name: "蓬泰西勒亚",
+        element: "pyro",
+        rarity: 4,
+        weapon: "长柄武器",
+        region: "枫丹",
+        avatar: "penthesilea/penthesilea立绘.jpg",
+        description: "枫丹四星长柄武器角色",
+        title: "战争舞者",
+        detailUrl: "penthesilea/penthesilea毕业.html"
+    },
+    {
+        id: "navigator",
+        name: "领航员",
+        element: "anemo",
+        rarity: 4,
+        weapon: "弓",
+        region: "枫丹",
+        avatar: "navigator/navigator立绘.jpg",
+        description: "枫丹四星弓角色",
+        title: "航路指引者",
+        detailUrl: "navigator/navigator毕业.html"
+    },
+    {
+        id: "felix",
+        name: "菲利克斯",
+        element: "geo",
+        rarity: 4,
+        weapon: "单手剑",
+        region: "枫丹",
+        avatar: "felix/felix立绘.jpg",
+        description: "枫丹四星单手剑角色",
+        title: "地质学家",
+        detailUrl: "felix/felix毕业.html"
+    },
+    {
+        id: "estelle",
+        name: "埃斯特尔",
+        element: "cryo",
+        rarity: 4,
+        weapon: "法器",
+        region: "至冬",
+        avatar: "estelle/estelle立绘.jpg",
+        description: "至冬四星法器角色",
+        title: "冰雪学者",
+        detailUrl: "estelle/estelle毕业.html"
+    },
+    {
+        id: "oscar",
+        name: "奥斯卡",
+        element: "electro",
+        rarity: 4,
+        weapon: "双手剑",
+        region: "至冬",
+        avatar: "oscar/oscar立绘.jpg",
+        description: "至冬四星双手剑角色",
+        title: "钢铁守卫",
+        detailUrl: "oscar/oscar毕业.html"
+    }
+];
+  
+
+        // DOM 元素
+        const charactersGrid = document.getElementById('charactersGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const loader = document.querySelector('.loader');
+        const backToTopBtn = document.getElementById('backToTop');
+        const resultsCount = document.getElementById('resultsCount');
+        
+        // 当前选择的过滤条件
+        let selectedRarity = "all-stars";
+        let selectedElement = "all-elements";
+        let searchTerm = "";
+
+        // 渲染角色卡片
+        function renderCharacters(charactersArray) {
+            charactersGrid.innerHTML = '';
+            
+            if (charactersArray.length === 0) {
+                charactersGrid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>未找到匹配的角色</h3>
+                        <p>请尝试其他搜索条件或过滤选项</p>
+                    </div>
+                `;
+                resultsCount.textContent = "未找到匹配的角色";
+                return;
+            }
+            
+            charactersArray.forEach(character => {
+                const elementClass = character.element;
+                const rarityText = character.rarity === 5 ? '五星角色' : '四星角色';
+                
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.innerHTML = `
+                    <div class="character-badge">${getElementName(character.element)}</div>
+                    <a href="${character.detailUrl}" class="character-avatar-link" title="查看${character.name}详情">
+                        <img src="${character.avatar}" alt="${character.name}" class="character-avatar">
+                        <div class="character-view-details"><i class="fas fa-external-link-alt"></i> 查看详情</div>
+                    </a>
+                    <div class="character-info">
+                        <h2 class="character-name ${elementClass}">${character.name}</h2>
+                        <p class="character-description">${character.description}</p>
+                        <div class="character-footer">
+                            <span><i class="fas fa-star character-rarity"></i> ${rarityText}</span>
+                            <span><i class="fas fa-${getWeaponIcon(character.weapon)}"></i> ${character.weapon}</span>
+                        </div>
+                    </div>
+                `;
+                
+                charactersGrid.appendChild(card);
+            });
+            
+            resultsCount.textContent = `共找到 ${charactersArray.length} 位角色`;
+        }
+
+        // 获取元素名称
+        function getElementName(element) {
+            const elements = {
+                dendro: '草元素',
+                electro: '雷元素',
+                hydro: '水元素',
+                pyro: '火元素',
+                cryo: '冰元素',
+                anemo: '风元素',
+                geo: '岩元素'
+            };
+            return elements[element] || element;
+        }
+
+        // 获取武器图标
+        function getWeaponIcon(weapon) {
+            const icons = {
+                '法器': 'book',
+                '单手剑': 'gem',
+                '长柄武器': 'snowflake',
+                '弓': 'bullseye',
+                '双手剑': 'hammer'
+            };
+            return icons[weapon] || 'star';
+        }
+
+        // 过滤角色
+        function filterCharacters() {
+            let filtered = characters;
+            
+            // 应用星级过滤
+            if (selectedRarity === "5-star") {
+                filtered = filtered.filter(char => char.rarity === 5);
+            } else if (selectedRarity === "4-star") {
+                filtered = filtered.filter(char => char.rarity === 4);
+            }
+            
+            // 应用元素过滤
+            if (selectedElement !== "all-elements") {
+                filtered = filtered.filter(char => char.element === selectedElement);
+            }
+            
+            // 应用搜索过滤
+            if (searchTerm.length > 0) {
+                filtered = filtered.filter(char => 
+                    char.name.toLowerCase().includes(searchTerm) || 
+                    char.description.toLowerCase().includes(searchTerm) ||
+                    char.element.toLowerCase().includes(searchTerm) ||
+                    char.weapon.toLowerCase().includes(searchTerm) ||
+                    char.region.toLowerCase().includes(searchTerm) ||
+                    char.title.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            return filtered;
+        }
+
+        // 更新角色显示
+        function updateCharacterDisplay() {
+            loader.style.display = 'block';
+            
+            setTimeout(() => {
+                const filteredCharacters = filterCharacters();
+                renderCharacters(filteredCharacters);
+                loader.style.display = 'none';
+            }, 300);
+        }
+
+        // 初始化
+        function init() {
+            // 初始渲染
+            renderCharacters(characters);
+            
+            // 搜索功能
+            searchInput.addEventListener('input', function() {
+                searchTerm = this.value.toLowerCase();
+                updateCharacterDisplay();
+            });
+            
+            // 过滤功能
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterType = this.dataset.filter;
+                    
+                    // 移除所有active类
+                    if (filterType.includes('star')) {
+                        document.querySelectorAll('[data-filter^="5-"], [data-filter^="4-"], [data-filter="all-stars"]').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        selectedRarity = filterType;
+                    } else {
+                        document.querySelectorAll('[data-filter="all-elements"], [data-filter="dendro"], [data-filter="electro"], [data-filter="hydro"], [data-filter="pyro"], [data-filter="cryo"], [data-filter="anemo"], [data-filter="geo"]').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        selectedElement = filterType;
+                    }
+                    
+                    // 添加active类到当前按钮
+                    this.classList.add('active');
+                    
+                    updateCharacterDisplay();
+                });
+            });
+            
+            // 回到顶部功能
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 500) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

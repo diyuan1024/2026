@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神角色主页</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f2ff 0%, #f0f5ff 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="0,100 100,0 100,100" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 100% 100%;
+            pointer-events: none;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 搜索区域 */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .search-box {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .search-btn {
+            padding: 0 25px;
+            background: #3a7bd5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .search-btn:hover {
+            background: #2c63a8;
+        }
+        
+        /* 过滤区域 */
+        .filters-container {
+            margin-bottom: 30px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .filter-group-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #3a7bd5;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-group-title i {
+            margin-right: 8px;
+        }
+        
+        .filter-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.85);
+            border: 2px solid #3a7bd5;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-btn:hover {
+            background: #3a7bd5;
+            color: white;
+        }
+        
+        .filter-btn.active {
+            background: #3a7bd5;
+            color: white;
+            box-shadow: 0 0 15px rgba(58, 123, 213, 0.5);
+        }
+        
+        .filter-btn i {
+            margin-right: 8px;
+        }
+        
+        /* 角色卡片网格布局 */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 35px;
+        }
+        
+        /* 角色卡片样式 */
+        .character-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            height: 450px;
+            transform: translateY(0);
+        }
+        
+        .character-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
+        }
+        
+        .character-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.3));
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* 角色头像 */
+        .character-avatar-link {
+            display: block;
+            width: 100%;
+            height: 320px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .character-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .character-card:hover .character-avatar {
+            transform: scale(1.05);
+        }
+        
+        /* 添加一个查看详情提示 */
+        .character-view-details {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+        
+        .character-avatar-link:hover .character-view-details {
+            transform: translateY(0);
+        }
+        
+        /* 角色信息 */
+        .character-info {
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .character-name {
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .character-name::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            margin: 8px auto 0;
+            border-radius: 10px;
+        }
+        
+        .character-description {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: center;
+            max-height: 3.6em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        
+        .character-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .character-rarity {
+            color: #d4af37;
+        }
+        
+        /* 元素颜色 */
+        .dendro { color: #a0d751; }
+        .electro { color: #c57bfe; }
+        .hydro { color: #3cc2f1; }
+        .pyro { color: #ff7e7b; }
+        .cryo { color: #90d0ff; }
+        .anemo { color: #74decc; }
+        .geo { color: #f9a25a; }
+        
+        /* 角色徽章 */
+        .character-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* 底部样式 */
+        footer {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 0;
+            text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* 动画效果 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .paimon {
+            position: absolute;
+            top: 0;
+            right: 50px;
+            animation: float 5s ease-in-out infinite;
+            opacity: 0.3;
+            font-size: 4rem;
+            z-index: 0;
+        }
+        
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 加载动画 */
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .loader-circle {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3a7bd5;
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 无结果提示 */
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 50px;
+            color: #777;
+        }
+        
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #3a7bd5;
+        }
+        
+        /* 角色计数 */
+        .results-count {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #3a7bd5;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>原神角色主页</h1>
+        <p class="subtitle">探索提瓦特大陆上的英雄们</p>
+        <div class="paimon">米哈游</div>
+    </header>
+    
+    <div class="container">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索角色名、元素或武器类型...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <div class="filters-container">
+            <!-- 星级过滤行 -->
+            <div class="filter-group">
+                <div class="filter-group-title">
+                    星级
+                </div>
+                <div class="filter-row">
+                    <div class="filter-btn active" data-filter="all-stars">
+                    全部
+                    </div>
+                    <div class="filter-btn" data-filter="5-star">
+                        五星角色
+                    </div>
+                    <div class="filter-btn" data-filter="4-star">
+                        四星角色
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 元素过滤行 -->
+            <div class="filter-group">
+                <div class="filter-group-title">
+                    元素
+                </div>
+                <div class="filter-row">
+                    <div class="filter-btn active" data-filter="all-elements">
+                        全部
+                    </div>
+                    <div class="filter-btn" data-filter="dendro">
+                        </i> 草元素
+                    </div>
+                    <div class="filter-btn" data-filter="electro">
+                        雷元素
+                    </div>
+                    <div class="filter-btn" data-filter="hydro">
+                        水元素
+                    </div>
+                    <div class="filter-btn" data-filter="pyro">
+                         火元素
+                    </div>
+                    <div class="filter-btn" data-filter="cryo">
+                        冰元素
+                    </div>
+                    <div class="filter-btn" data-filter="anemo">
+                        风元素
+                    </div>
+                    <div class="filter-btn" data-filter="geo">
+                        岩元素
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-count" id="resultsCount">共找到 4 位角色</div>
+        
+        <div class="loader">
+            <div class="loader-circle"></div>
+            <p>正在加载角色数据...</p>
+        </div>
+        
+        <div class="characters-grid" id="charactersGrid">
+            <!-- 角色卡片将通过JS动态生成 -->
+        </div>
+    </div>
+    
+    <footer>
+        <p class="copyright">© 2025 原神角色主页 | 本网站仅供学习与爱好者交流使用 | 非官方网站</p>
+    </footer>
+    
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <script>
+        // 角色数据 (添加了detailUrl属性)
+        const characters = [
+            {
+                id: "nahida",
+                name: "纳西妲",
+                element: "dendro",
+                rarity: 5,
+                weapon: "法器",
+                region: "须弥",
+                avatar: "../纳西妲/纳西妲立绘.jpg",
+                description: "须弥五星法器角色",
+                title: "智慧之神",
+                detailUrl: "../纳西妲/纳西妲毕业.html"
+            },
+            {
+                id: "kuki-shinobu",
+                name: "久岐忍",
+                element: "electro",
+                rarity: 4,
+                weapon: "单手剑",
+                region: "稻妻",
+                avatar: "../久岐忍/久岐忍立绘.jpg",
+                description: "稻妻四星单手剑角色",
+                title: "烦恼刈除",
+                detailUrl: "../久岐忍/久岐忍毕业.html"
+            },
+            {
+                id: "xingqiu",
+                name: "行秋",
+                element: "hydro",
+                rarity: 4,
+                weapon: "单手剑",
+                region: "璃月",
+                avatar: "../行秋/行秋立绘.jpg",
+                description: "璃月四星单手剑角色",
+                title: "书剑双绝",
+                detailUrl: "../行秋/行秋毕业.html"
+            },
+            {
+                id: "xiangling",
+                name: "香菱",
+                element: "pyro",
+                rarity: 4,
+                weapon: "长柄武器",
+                region: "璃月",
+                avatar: "../香菱/香菱立绘.jpg",
+                description: "璃月四星长柄武器角色",
+                title: "万民百味",
+                detailUrl: "../香菱/香菱毕业.html"
+            }
+        ];
+
+        // DOM 元素
+        const charactersGrid = document.getElementById('charactersGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const loader = document.querySelector('.loader');
+        const backToTopBtn = document.getElementById('backToTop');
+        const resultsCount = document.getElementById('resultsCount');
+        
+        // 当前选择的过滤条件
+        let selectedRarity = "all-stars";
+        let selectedElement = "all-elements";
+        let searchTerm = "";
+
+        // 渲染角色卡片
+        function renderCharacters(charactersArray) {
+            charactersGrid.innerHTML = '';
+            
+            if (charactersArray.length === 0) {
+                charactersGrid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>未找到匹配的角色</h3>
+                        <p>请尝试其他搜索条件或过滤选项</p>
+                    </div>
+                `;
+                resultsCount.textContent = "未找到匹配的角色";
+                return;
+            }
+            
+            charactersArray.forEach(character => {
+                const elementClass = character.element;
+                const rarityText = character.rarity === 5 ? '五星角色' : '四星角色';
+                
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.innerHTML = `
+                    <div class="character-badge">${getElementName(character.element)}</div>
+                    <a href="${character.detailUrl}" class="character-avatar-link" title="查看${character.name}详情">
+                        <img src="${character.avatar}" alt="${character.name}" class="character-avatar">
+                        <div class="character-view-details"><i class="fas fa-external-link-alt"></i> 查看详情</div>
+                    </a>
+                    <div class="character-info">
+                        <h2 class="character-name ${elementClass}">${character.name}</h2>
+                        <p class="character-description">${character.description}</p>
+                        <div class="character-footer">
+                            <span><i class="fas fa-star character-rarity"></i> ${rarityText}</span>
+                            <span><i class="fas fa-${getWeaponIcon(character.weapon)}"></i> ${character.weapon}</span>
+                        </div>
+                    </div>
+                `;
+                
+                charactersGrid.appendChild(card);
+            });
+            
+            resultsCount.textContent = `共找到 ${charactersArray.length} 位角色`;
+        }
+
+        // 获取元素名称
+        function getElementName(element) {
+            const elements = {
+                dendro: '草元素',
+                electro: '雷元素',
+                hydro: '水元素',
+                pyro: '火元素',
+                cryo: '冰元素',
+                anemo: '风元素',
+                geo: '岩元素'
+            };
+            return elements[element] || element;
+        }
+
+        // 获取武器图标
+        function getWeaponIcon(weapon) {
+            const icons = {
+                '法器': 'book',
+                '单手剑': 'gem',
+                '长柄武器': 'snowflake',
+                '弓': 'bullseye',
+                '双手剑': 'hammer'
+            };
+            return icons[weapon] || 'star';
+        }
+
+        // 过滤角色
+        function filterCharacters() {
+            let filtered = characters;
+            
+            // 应用星级过滤
+            if (selectedRarity === "5-star") {
+                filtered = filtered.filter(char => char.rarity === 5);
+            } else if (selectedRarity === "4-star") {
+                filtered = filtered.filter(char => char.rarity === 4);
+            }
+            
+            // 应用元素过滤
+            if (selectedElement !== "all-elements") {
+                filtered = filtered.filter(char => char.element === selectedElement);
+            }
+            
+            // 应用搜索过滤
+            if (searchTerm.length > 0) {
+                filtered = filtered.filter(char => 
+                    char.name.toLowerCase().includes(searchTerm) || 
+                    char.description.toLowerCase().includes(searchTerm) ||
+                    char.element.toLowerCase().includes(searchTerm) ||
+                    char.weapon.toLowerCase().includes(searchTerm) ||
+                    char.region.toLowerCase().includes(searchTerm) ||
+                    char.title.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            return filtered;
+        }
+
+        // 更新角色显示
+        function updateCharacterDisplay() {
+            loader.style.display = 'block';
+            
+            setTimeout(() => {
+                const filteredCharacters = filterCharacters();
+                renderCharacters(filteredCharacters);
+                loader.style.display = 'none';
+            }, 300);
+        }
+
+        // 初始化
+        function init() {
+            // 初始渲染
+            renderCharacters(characters);
+            
+            // 搜索功能
+            searchInput.addEventListener('input', function() {
+                searchTerm = this.value.toLowerCase();
+                updateCharacterDisplay();
+            });
+            
+            // 过滤功能
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterType = this.dataset.filter;
+                    
+                    // 移除所有active类
+                    if (filterType.includes('star')) {
+                        document.querySelectorAll('[data-filter^="5-"], [data-filter^="4-"], [data-filter="all-stars"]').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        selectedRarity = filterType;
+                    } else {
+                        document.querySelectorAll('[data-filter="all-elements"], [data-filter="dendro"], [data-filter="electro"], [data-filter="hydro"], [data-filter="pyro"], [data-filter="cryo"], [data-filter="anemo"], [data-filter="geo"]').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        selectedElement = filterType;
+                    }
+                    
+                    // 添加active类到当前按钮
+                    this.classList.add('active');
+                    
+                    updateCharacterDisplay();
+                });
+            });
+            
+            // 回到顶部功能
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 500) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

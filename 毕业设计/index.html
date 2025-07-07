@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神 - 登录</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        body {
+            height: 100vh;
+            background: linear-gradient(to bottom, #1d2b4d, #36487c, #2c3e50);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: #f0e6d2;
+        }
+        
+        /* 背景元素效果 */
+        .background-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .elemental-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(20px);
+            opacity: 0.3;
+            animation: rise 15s linear infinite;
+        }
+        
+        .orb-pyro {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #ff9966, #ff5e62);
+            top: -100px;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .orb-hydro {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(45deg, #48c6ef, #6f86d6);
+            top: -100px;
+            left: 30%;
+            animation-delay: -3s;
+        }
+        
+        .orb-anemo {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #0cebeb, #20e3b2);
+            top: -100px;
+            left: 50%;
+            animation-delay: -6s;
+        }
+        
+        .orb-electro {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            top: -100px;
+            left: 70%;
+            animation-delay: -9s;
+        }
+        
+        @keyframes rise {
+            0% {
+                transform: translateY(100vh) scale(0.6);
+            }
+            100% {
+                transform: translateY(-100px) scale(1.3);
+            }
+        }
+        
+        /* 龙元素 */
+        .dragon {
+            position: absolute;
+            top: 30px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: url('https://uploadstatic.mihoyo.com/contentweb/20200309/2020030915222021928.png') no-repeat center;
+            background-size: contain;
+            opacity: 0.15;
+            animation: float 40s linear infinite;
+            z-index: 1;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateX(-100px) rotate(-10deg);
+            }
+            100% {
+                transform: translateX(calc(100vw + 200px)) rotate(5deg);
+            }
+        }
+        
+        /* 登录卡片容器 */
+        .login-container {
+            position: relative;
+            background: rgba(27, 31, 50, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            width: 420px;
+            padding: 40px;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            transform: perspective(1000px);
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #d4a017, #ffcb47);
+            box-shadow: 0 0 20px rgba(212, 160, 23, 0.7);
+        }
+        
+        /* 登录头部 */
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 180px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 8px rgba(226, 199, 140, 0.6));
+        }
+        
+        .login-title {
+            color: #e2c78c;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(226, 199, 140, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .login-subtitle {
+            color: #a0aec0;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+        
+        /* 表单样式 */
+        #loginForm {
+            position: relative;
+            z-index: 5;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            color: #c8c8c8;
+            margin-bottom: 8px;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        .input-group input:focus {
+            border-color: #e2c78c;
+            box-shadow: 0 0 12px rgba(226, 199, 140, 0.4);
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 41px;
+            color: #e2c78c;
+            font-size: 18px;
+        }
+        
+        /* 登录按钮 */
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, #d4a017, #d28e0e);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(210, 142, 14, 0.4);
+            letter-spacing: 2px;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(to right, #d4a017, #ffcb47);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(210, 142, 14, 0.6);
+        }
+        
+        .login-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .login-btn i {
+            margin-left: 8px;
+        }
+        
+        /* 额外选项 */
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .remember-me input {
+            margin-right: 8px;
+        }
+        
+        .forgot-password {
+            color: #e2c78c;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .forgot-password:hover {
+            color: #ffcb47;
+            text-decoration: underline;
+        }
+        
+        /* 角色展示 */
+        .character {
+            position: absolute;
+            bottom: -25px;
+            right: 20px;
+            width: 200px;
+            height: 250px;
+            background: url('') no-repeat center;
+            background-size: contain;
+            z-index: 1;
+            opacity: 0.8;
+        }
+        
+        /* 错误提示 */
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+            text-shadow: 0 0 6px rgba(255, 107, 107, 0.5);
+        }
+        
+        /* 成功提示 */
+        .success-message {
+            color: #4ade80;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+            text-shadow: 0 0 6px rgba(74, 222, 128, 0.3);
+        }
+        
+        /* 底部信息 */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(160, 174, 192, 0.6);
+            font-size: 12px;
+            z-index: 5;
+        }
+        
+        /* 成功屏幕 */
+        #successScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1d2b4d, #101b36);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s ease;
+        }
+        
+        #successScreen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .success-content {
+            text-align: center;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 1s ease;
+        }
+        
+        #successScreen.active .success-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .welcome-title {
+            font-size: 48px;
+            color: #ffcb47;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 203, 71, 0.7);
+            font-weight: 800;
+            letter-spacing: 3px;
+        }
+        
+        .loading-bar {
+            width: 400px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 30px;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #d4a017, #ffcb47);
+            transition: width 3s ease;
+            border-radius: 4px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 500px) {
+            .login-container {
+                width: 90%;
+                padding: 30px;
+            }
+            
+            .logo {
+                width: 150px;
+            }
+            
+            .character {
+                display: none;
+            }
+            
+            .dragon {
+                display: none;
+            }
+        }
+        
+        /* 抖动动画 */
+        @keyframes shake {
+            0%, 100% {transform: translateX(0);}
+            10%, 30%, 50%, 70%, 90% {transform: translateX(-8px);}
+            20%, 40%, 60%, 80% {transform: translateX(8px);}
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景效果 -->
+    <div class="background-effects">
+        <div class="elemental-orb orb-pyro"></div>
+        <div class="elemental-orb orb-hydro"></div>
+        <div class="elemental-orb orb-anemo"></div>
+        <div class="elemental-orb orb-electro"></div>
+        <div class="dragon"></div>
+    </div>
+    
+    <!-- 登录容器 -->
+    <div class="login-container">
+        <div class="character"></div>
+        
+        <div class="login-header">
+            <img src="touxiang.jpg" alt="原神Logo" class="logo">
+            <h1 class="login-title">旅行者，欢迎回来</h1>
+            <p class="login-subtitle">请输入您的账号信息</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">通行证/邮箱</label>
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="输入您的通行证或邮箱" autocomplete="off">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">密码</label>
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="输入您的密码">
+            </div>
+            
+            <button type="submit" class="login-btn">进入提瓦特大陆 <i class="fas fa-play"></i></button>
+            
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+        </form>
+    </div>
+    
+    <!-- 成功登录后的屏幕 -->
+    <div id="successScreen">
+        <div class="success-content">
+            <h1 class="welcome-title">旅行者，欢迎回到提瓦特大陆！</h1>
+            <p>正在为您加载游戏，请稍候...</p>
+            <div class="loading-bar">
+                <div id="loadingProgress" class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部信息 -->
+    <div class="footer">
+        &copy; 2023 米哈游 miHoYo. 保留所有权利
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const successScreen = document.getElementById('successScreen');
+            const loadingProgress = document.getElementById('loadingProgress');
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 获取输入值
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                // 清空消息
+                errorMessage.textContent = '';
+                successMessage.textContent = '';
+                
+                // 输入验证
+                if (!username || !password) {
+                    errorMessage.textContent = '请输入账号和密码';
+                    loginForm.style.animation = 'shake 0.5s';
+                    setTimeout(() => loginForm.style.animation = '', 500);
+                    return;
+                }
+                
+                // 模拟登录过程
+                const loginBtn = document.querySelector('.login-btn');
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '验证中... <i class="fas fa-spinner fa-spin"></i>';
+                
+                setTimeout(() => {
+                    // 模拟验证结果
+                    const isValid = verifyCredentials(username, password);
+                    
+                    if (isValid) {
+                        // 登录成功
+                        handleLoginSuccess(username);
+                    } else {
+                        // 登录失败
+                        handleLoginFailure();
+                    }
+                }, 1500);
+            });
+            
+            // 验证凭据的函数
+            function verifyCredentials(username, password) {
+                // 实际应用中此处需要后端验证
+                // 模拟一些有效的凭据
+                const validAccounts = [
+                    { user: '2302112108', pass: '123' },
+                    { user: '1234', pass: '123' }
+                ];
+                
+                return validAccounts.some(account => 
+                    username.toLowerCase() === account.user.toLowerCase() && 
+                    password === account.pass
+                );
+            }
+            
+            // 处理登录失败
+            function handleLoginFailure() {
+                const loginBtn = document.querySelector('.login-btn');
+                errorMessage.textContent = '账号或密码错误，请重新输入';
+                
+                // 重置按钮状态
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '进入提瓦特大陆 <i class="fas fa-play"></i>';
+                
+                // 添加抖动效果
+                loginForm.style.animation = 'shake 0.6s';
+                setTimeout(() => loginForm.style.animation = '', 600);
+            }
+            
+            // 处理登录成功 - 跳转的核心代码
+            function handleLoginSuccess(username) {
+                successMessage.textContent = '登录成功！正在为您跳转...';
+                
+                // 显示成功界面
+                successScreen.classList.add('active');
+                
+                // 开始加载进度
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    if (progress > 100) progress = 100;
+                    loadingProgress.style.width = `${progress}%`;
+                    
+                    if (progress === 100) {
+                        clearInterval(interval);
+                        // 页面跳转 - 这里是实际跳转逻辑
+                        window.location.href = '原神主页/原神主页.html';
+                    }
+                }, 150);
+            }
+        });
+    </script>
+</body>
+</html>

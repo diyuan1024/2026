@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神 - 香菱</title>
+    <script src="../js/原神.js"></script>
+    <link href="../css/原神.css" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #E53935; /* 香菱红色 */
+            --color-secondary: #FF8F00; /* 香菱橙色 */
+            --color-dark: #232931;
+            --color-light: #EEEEEE;
+            --font-inter: 'Inter', sans-serif;
+        }
+        
+        @utility smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        
+        @utility content-auto {
+            content-visibility: auto;
+        }
+        
+        @utility card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        }
+        
+        @utility nav-active {
+            @apply border-b-2 border-primary text-primary;
+        }
+        
+        body {
+            font-family: var(--font-inter);
+            background-color: var(--color-light);
+            color: var(--color-dark);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--color-primary);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            box-shadow:  10px 10px 20px #d9d9d9, 
+                         -10px -10px 20px #ffffff;
+        }
+        
+        .stat-card-dark {
+            background: linear-gradient(145deg, #1e1e2e, #121220);
+            box-shadow:  10px 10px 20px #10101d, 
+                         -10px -10px 20px #2a2a40;
+            color: var(--color-light);
+        }
+        
+        .weapon-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .element-icon {
+            filter: drop-shadow(0 0 8px rgba(229, 57, 53, 0.7));
+        }
+        
+        .skill-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(229, 57, 53, 0.2), transparent);
+            transition: left 0.6s ease-in-out;
+        }
+        
+        .skill-card:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <!-- 顶部导航条 -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="../原神主页/原神主页.html"><h1 class="text-xl font-bold text-primary">原神 - 香菱</h1></a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#intro" class="nav-link active text-dark hover:text-primary transition-colors">角色介绍</a>
+                    <a href="#skills" class="nav-link text-dark hover:text-primary transition-colors">技能介绍</a>
+                    <a href="#weapons" class="nav-link text-dark hover:text-primary transition-colors">武器推荐</a>
+                    <a href="#artifacts" class="nav-link text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                    <a href="#builds" class="nav-link text-dark hover:text-primary transition-colors">培养方案</a>
+                </div>
+                <button class="md:hidden text-dark focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white shadow-lg absolute w-full" id="mobile-menu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#intro" class="py-2 text-dark hover:text-primary transition-colors">角色介绍</a>
+                <a href="#skills" class="py-2 text-dark hover:text-primary transition-colors">技能介绍</a>
+                <a href="#weapons" class="py-2 text-dark hover:text-primary transition-colors">武器推荐</a>
+                <a href="#artifacts" class="py-2 text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                <a href="#builds" class="py-2 text-dark hover:text-primary transition-colors">培养方案</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄Banner -->
+    <section class="pt-24 pb-16 bg-gradient-to-br from-primary/10 to-secondary/20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="text-4xl md:text-5xl font-bold text-dark mb-4">香菱</h2>
+                    <p class="text-lg text-gray-600 mb-6">万民堂的新任大厨，「绝云间」仙人的弟子，精通火元素的长枪角色</p>
+                    <div class="flex space-x-4">
+                        <span class="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium flex items-center">
+                            <i class="fa-solid fa-fire mr-2 element-icon"></i>火元素
+                        </span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">长枪</span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">四星</span>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="香菱.png" alt="香菱" class="w-64 md:w-80 rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 角色介绍 -->
+    <section id="intro" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">角色介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-dark mb-4">万民堂的天才厨师</h3>
+                    <p class="text-gray-600 mb-4">香菱是璃月港老字号餐馆「万民堂」的年轻大厨，凭借对烹饪的极致追求和火元素神之眼的天赋，成为璃月饮食界的新星。</p>
+                    <p class="text-gray-600 mb-4">作为绝云间仙人「锅巴」的弟子，她的厨艺融合了仙人的智慧与人类的创意，战斗中更能以火焰长枪和锅巴助战，是火元素反应队的核心角色。</p>
+                    <h3 class="text-xl font-bold text-dark mb-4 mt-8">角色故事</h3>
+                    <p class="text-gray-600 mb-4">香菱自幼在万民堂长大，对烹饪有着超乎常人的热情。为了追求更极致的厨艺，她独自前往绝云间寻找仙人指点，最终被灶台仙人「锅巴」收为弟子，学会了操控火焰的力量。</p>
+                    <p class="text-gray-600 mb-4">她与行秋是好友，两人常一起探索璃月各地寻找食材，尽管行秋的「文雅」时常与香菱的「豪放」形成有趣的对比。</p>
+                </div>
+                <div class="flex justify-center">
+                    <img src="香菱立绘.jpg" alt="香菱插画" class="w-full max-w-md rounded-xl shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能介绍 -->
+    <section id="skills" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">技能介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 普通攻击 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">普通攻击</h3>
+                            <p class="text-primary">枪术·烈火烹油</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">进行至多五段的连续枪击，造成火元素伤害。重击消耗体力，向前方突进并造成范围火元素伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">技能伤害</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>一段伤害：51.5% 攻击力</li>
+                        <li>二段伤害：53.9% 攻击力</li>
+                        <li>三段伤害：67.4% 攻击力</li>
+                        <li>四段伤害：70.9% 攻击力</li>
+                        <li>五段伤害：106.3% 攻击力 + 60.2% 攻击力（范围）</li>
+                        <li>重击伤害：135.3% 攻击力（突进）+ 162.4% 攻击力（范围）</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素战技 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素战技</h3>
+                            <p class="text-primary">锅巴出击！</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">召唤仙人「锅巴」向前喷火，造成火元素范围伤害。锅巴会停留在场上一段时间，周期性喷火攻击附近敌人。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：212.3% 攻击力（火元素范围）</li>
+                        <li>锅巴持续时间：14秒，喷火间隔3.5秒</li>
+                        <li>锅巴喷火伤害：80.2% 攻击力（火元素范围）</li>
+                        <li>冷却时间：15秒</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素爆发 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素爆发</h3>
+                            <p class="text-primary">旋火轮</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">香菱舞动长枪，形成高速旋转的火轮环绕自身，对周围敌人造成持续火元素伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：初始215.7% 攻击力（火元素范围），旋火轮每击38.6% 攻击力</li>
+                        <li>旋火轮持续时间：15秒，攻击间隔1.5秒</li>
+                        <li>能量消耗：80点</li>
+                        <li>冷却时间：20秒</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 武器推荐 -->
+    <section id="weapons" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">武器推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 推荐武器1 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">渔获</h3>
+                            <p class="text-primary">四星 长枪</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">510（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素充能效率</p>
+                            <p class="text-primary">30.6%（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">香菱的平民毕业武器，提供高额元素充能效率，武器特效大幅提升元素爆发伤害，完美契合香菱输出机制。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">元素爆发造成的伤害提升16%/20%/24%/28%/32%，元素爆发的暴击率提升6%/7.5%/9%/10.5%/12%。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★★</p>
+                    </div>
+                </div>
+                
+                <!-- 推荐武器2 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">护摩之杖</h3>
+                            <p class="text-primary">五星 长枪</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">674（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">暴击伤害</p>
+                            <p class="text-primary">44.1%（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">顶级输出武器，提供高额暴击伤害和生命值转化攻击力的特效，大幅提升香菱的爆发输出能力。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">生命值提升20%/25%/30%/35%/40%。此外，基于装备者生命值上限的0.8%/1%/1.2%/1.4%/1.6%，获得攻击力加成。当装备者的生命值低于50%时，攻击力加成效果提升100%。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★★</p>
+                    </div>
+                </div>
+                
+                <!-- 推荐武器3 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">匣里灭辰</h3>
+                            <p class="text-primary">四星 长枪</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">510（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素精通</p>
+                            <p class="text-primary">165（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">适合反应队的输出武器，提供高额元素精通和火水元素反应伤害加成，尤其适合蒸发、融化等反应队伍。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">对处于水元素或火元素影响下的敌人，造成的伤害提高20%/25%/30%/35%/40%。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★☆</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 圣遗物推荐 -->
+    <section id="artifacts" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">圣遗物推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 主套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">绝缘之旗印</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">香菱的主流圣遗物套装，能有效提升元素爆发伤害和元素充能效率，最大化「旋火轮」的输出频率与伤害。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：元素充能效率提高20%。</li>
+                            <li>4件套：基于元素充能效率的25%，提高元素爆发造成的伤害。至多通过这种方式获得75%提升。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">火元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">火元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素充能效率>暴击率>暴击伤害>攻击力>元素精通</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 备选套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">魔女套</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">适合追求极致火元素伤害的香菱，能大幅提升火元素反应伤害，尤其适合纯色火队或蒸发体系。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：火元素伤害加成提高15%。</li>
+                            <li>4件套：超载、燃烧反应造成的伤害提升40%；蒸发、融化反应的加成系数提高15%。施放元素战技后的10秒内，2件套的效果提高50%，该效果最多叠加1次。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">火元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">火元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素充能效率>暴击率>暴击伤害>攻击力>元素精通</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 培养方案 -->
+    <section id="builds" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">培养方案</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 副C型 -->
+                <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4">副C型香菱</h3>
+                    <p class="text-gray-600 mb-4">专注于元素充能和持续火元素覆盖，适合作为队伍中的副C兼后台火元素提供者，配合水系或冰系角色触发元素反应。</p>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">元素充能效率</p>
+                                <p class="text-lg font-bold text-primary">220%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击率</p>
+                                <p class="text-lg font-bold text-primary">50%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击伤害</p>
+                                <p class="text-lg font-bold text-dark">100%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">火元素伤害加成</p>
+                                <p class="text-lg font-bold text-primary">35%+</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                        </h4>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">生之花</p>
+                                <p class="text-sm font-medium text-primary">生命值</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">死之羽</p>
+                                <p class="text-sm font-medium text-primary">攻击力</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">时之沙</p>
+                                <p class="text-sm font-medium text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">空之杯</p>
+                                <p class="text-sm font-medium text-primary">火元素伤害加成</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">理之冠</p>
+                                <p class="text-sm font-medium text-primary">暴击率</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                        </h4>
+                        <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                            <li>元素充能效率</li>
+                            <li>暴击率</li>
+                            <li>暴击伤害</li>
+                            <li>攻击力百分比</li>
+                            <li>元素精通</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">普通攻击</p>
+                                <p class="text-sm font-medium text-dark">6+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素战技</p>
+                                <p class="text-sm font-medium text-primary">8+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素爆发</p>
+                                <p class="text-sm font-medium text-primary">10+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 主C型 -->
+                <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4">主C型香菱</h3>
+                    <p class="text-gray-600 mb-4">专注于提升单体输出能力，适合在纯色火队或特定阵容中作为主C使用，依赖大招和高倍率技能进行爆发输出。</p>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">元素充能效率</p>
+                                <p class="text-lg font-bold text-primary">180%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击率</p>
+                                <p class="text-lg font-bold text-primary">60%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击伤害</p>
+                                <p class="text-lg font-bold text-dark">120%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">火元素伤害加成</p>
+                                <p class="text-lg font-bold text-primary">50%+</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                        </h4>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">生之花</p>
+                                <p class="text-sm font-medium text-primary">生命值</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">死之羽</p>
+                                <p class="text-sm font-medium text-primary">攻击力</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">时之沙</p>
+                                <p class="text-sm font-medium text-primary">攻击力百分比</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">空之杯</p>
+                                <p class="text-sm font-medium text-primary">火元素伤害加成</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">理之冠</p>
+                                <p class="text-sm font-medium text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                        </h4>
+                        <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                            <li>暴击率</li>
+                            <li>暴击伤害</li>
+                            <li>攻击力百分比</li>
+                            <li>元素充能效率</li>
+                            <li>元素精通</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">普通攻击</p>
+                                <p class="text-sm font-medium text-dark">6+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素战技</p>
+                                <p class="text-sm font-medium text-primary">9+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素爆发</p>
+                                <p class="text-sm font-medium text-primary">10+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+            <p>© 2025 原神 Wiki. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('header');
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-white', 'shadow-md');
+                navbar.classList.remove('bg-transparent');
+            } else {
+                navbar.classList.remove('bg-white', 'shadow-md');
+                navbar.classList.add('bg-transparent');
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 移动端菜单收起
+                    const menuToggle = document.getElementById('menu-toggle');
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (menuToggle && mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                        menuToggle.click();
+                    }
+                }
+            });
+        });
+
+        // 移动端菜单
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (menuToggle && mobileMenu) {
+            menuToggle.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+                menuToggle.querySelector('i').classList.toggle('fa-bars');
+                menuToggle.querySelector('i').classList.toggle('fa-times');
+            });
+        }
+
+        // FAQ 切换
+        document.querySelectorAll('.faq-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('i');
+                
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+                
+                // 关闭其他FAQ
+                document.querySelectorAll('.faq-toggle').forEach(otherToggle => {
+                    if (otherToggle !== this) {
+                        otherToggle.nextElementSibling.classList.add('hidden');
+                        otherToggle.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+            });
+        });
+
+        // 武器卡片悬停效果
+        document.querySelectorAll('.weapon-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.classList.add('transform', 'scale-105', 'shadow-lg');
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.classList.remove('transform', 'scale-105', 'shadow-lg');
+            });
+        });
+
+        // 圣遗物卡片悬停效果
+        document.querySelectorAll('.card-hover').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.classList.add('transform', 'scale-105', 'shadow-lg');
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.classList.remove('transform', 'scale-105', 'shadow-lg');
+            });
+        });
+
+        // 元素战技和爆发展示切换
+        const skillTabs = document.querySelectorAll('.skill-tab');
+        const skillContents = document.querySelectorAll('.skill-content');
+        
+        if (skillTabs.length > 0 && skillContents.length > 0) {
+            skillTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    
+                    // 移除所有激活状态
+                    skillTabs.forEach(t => t.classList.remove('bg-primary', 'text-white'));
+                    skillContents.forEach(c => c.classList.add('hidden'));
+                    
+                    // 添加当前激活状态
+                    this.classList.add('bg-primary', 'text-white');
+                    document.getElementById(target).classList.remove('hidden');
+                });
+            });
+            
+            // 默认显示第一个技能
+            if (skillTabs.length > 0) {
+                skillTabs[0].click();
+            }
+        }
+
+        // 角色图片淡入效果
+        const characterImage = document.querySelector('.character-image');
+        if (characterImage) {
+            characterImage.style.opacity = '0';
+            characterImage.style.transform = 'translateY(20px)';
+            characterImage.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                characterImage.style.opacity = '1';
+                characterImage.style.transform = 'translateY(0)';
+            }, 300);
+        }
+
+        // 滚动动画
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+                
+                if (elementPosition < screenPosition) {
+                    element.classList.add('animate-fadeIn');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+    </script>
+</body>
+</html>

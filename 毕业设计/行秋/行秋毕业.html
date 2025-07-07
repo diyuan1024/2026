@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神 - 行秋</title>
+    <script src="../js/原神.js"></script>
+    <link href="../css/原神.css" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #1E88E5; /* 行秋蓝色 */
+            --color-secondary: #4DB6AC; /* 行秋青色 */
+            --color-dark: #232931;
+            --color-light: #EEEEEE;
+            --font-inter: 'Inter', sans-serif;
+        }
+        
+        @utility smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        
+        @utility content-auto {
+            content-visibility: auto;
+        }
+        
+        @utility card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        }
+        
+        @utility nav-active {
+            @apply border-b-2 border-primary text-primary;
+        }
+        
+        body {
+            font-family: var(--font-inter);
+            background-color: var(--color-light);
+            color: var(--color-dark);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--color-primary);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            box-shadow:  10px 10px 20px #d9d9d9, 
+                         -10px -10px 20px #ffffff;
+        }
+        
+        .stat-card-dark {
+            background: linear-gradient(145deg, #1e1e2e, #121220);
+            box-shadow:  10px 10px 20px #10101d, 
+                         -10px -10px 20px #2a2a40;
+            color: var(--color-light);
+        }
+        
+        .weapon-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .element-icon {
+            filter: drop-shadow(0 0 8px rgba(30, 136, 229, 0.7));
+        }
+        
+        .skill-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(30, 136, 229, 0.2), transparent);
+            transition: left 0.6s ease-in-out;
+        }
+        
+        .skill-card:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <!-- 顶部导航条 -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="../原神主页/原神主页.html"><h1 class="text-xl font-bold text-primary">原神 - 行秋</h1></a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#intro" class="nav-link active text-dark hover:text-primary transition-colors">角色介绍</a>
+                    <a href="#skills" class="nav-link text-dark hover:text-primary transition-colors">技能介绍</a>
+                    <a href="#weapons" class="nav-link text-dark hover:text-primary transition-colors">武器推荐</a>
+                    <a href="#artifacts" class="nav-link text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                    <a href="#builds" class="nav-link text-dark hover:text-primary transition-colors">培养方案</a>
+                </div>
+                <button class="md:hidden text-dark focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white shadow-lg absolute w-full" id="mobile-menu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#intro" class="py-2 text-dark hover:text-primary transition-colors">角色介绍</a>
+                <a href="#skills" class="py-2 text-dark hover:text-primary transition-colors">技能介绍</a>
+                <a href="#weapons" class="py-2 text-dark hover:text-primary transition-colors">武器推荐</a>
+                <a href="#artifacts" class="py-2 text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                <a href="#builds" class="py-2 text-dark hover:text-primary transition-colors">培养方案</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄Banner -->
+    <section class="pt-24 pb-16 bg-gradient-to-br from-primary/10 to-secondary/20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="text-4xl md:text-5xl font-bold text-dark mb-4">行秋</h2>
+                    <p class="text-lg text-gray-600 mb-6">玉衡星的得力助手，「飞云商会」二少爷，精通水元素的剑客</p>
+                    <div class="flex space-x-4">
+                        <span class="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium flex items-center">
+                            <i class="fa-solid fa-tint mr-2 element-icon"></i>水元素
+                        </span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">单手剑</span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">四星</span>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="行秋.jpg" alt="行秋" class="w-64 md:w-80 rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 角色介绍 -->
+    <section id="intro" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">角色介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-dark mb-4">「飞云商会」的贵公子</h3>
+                    <p class="text-gray-600 mb-4">行秋是璃月港「飞云商会」的二少爷，表面上是一位温文尔雅的贵公子，实则是玉衡星刻晴最信任的助手之一。</p>
+                    <p class="text-gray-600 mb-4">作为一名水元素神之眼持有者，他精通剑术与水元素战技，战斗风格迅捷优雅，同时具备强大的辅助能力，是队伍中不可或缺的水系核心。</p>
+                    <h3 class="text-xl font-bold text-dark mb-4 mt-8">角色故事</h3>
+                    <p class="text-gray-600 mb-4">行秋自幼饱读诗书，尤其喜爱武侠小说，梦想成为书中行侠仗义的英雄。尽管出身商贾世家，他却选择以「侠」的标准要求自己，暗中帮助璃月港的居民解决各类难题。</p>
+                    <p class="text-gray-600 mb-4">他与重云是挚友，两人常常一同外出「降妖除魔」，尽管行秋的「驱邪」方式总是让重云头疼不已。</p>
+                </div>
+                <div class="flex justify-center">
+                    <img src="行秋立绘.jpg" alt="行秋插画" class="w-full max-w-md rounded-xl shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能介绍 -->
+    <section id="skills" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">技能介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 普通攻击 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">普通攻击</h3>
+                            <p class="text-primary">古华剑法</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">进行至多六段的连续挥砍，造成水元素伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">技能伤害</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>一段伤害：34.6% 攻击力</li>
+                        <li>二段伤害：36.3% 攻击力</li>
+                        <li>三段伤害：45.7% 攻击力</li>
+                        <li>四段伤害：47.8% 攻击力</li>
+                        <li>五段伤害：59.8% 攻击力</li>
+                        <li>六段伤害：71.7% 攻击力 + 64.5% 攻击力（水元素范围）</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素战技 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素战技</h3>
+                            <p class="text-primary">雨帘剑</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">行秋快速拔出两柄水剑向前掷出，造成水元素伤害，并生成「雨帘剑」附着于自身。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：123.2% 攻击力（水元素）</li>
+                        <li>雨帘剑：最多存在3柄，为行秋提供伤害减免与抗打断能力，并在受到伤害时反弹水元素伤害</li>
+                        <li>冷却时间：6秒</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素爆发 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素爆发</h3>
+                            <p class="text-primary">秋水共长天</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">行秋解放水元素力量，召唤「逐影剑」伴随自身攻击，造成持续水元素伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：初始185.4% 攻击力（水元素），逐影剑每击36.2% 攻击力</li>
+                        <li>逐影剑：普通攻击、重击、下落攻击时发射，持续15秒，最多发射20柄</li>
+                        <li>能量消耗：80点</li>
+                        <li>冷却时间：20秒</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 武器推荐 -->
+    <section id="weapons" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">武器推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 推荐武器1 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">祭礼剑</h3>
+                            <p class="text-primary">四星 单手剑</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">510（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素充能效率</p>
+                            <p class="text-primary">30.6%（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">行秋的主流毕业武器，提供高额元素充能效率，配合元素战技重置冷却，大幅提升技能循环能力。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">元素战技造成伤害时，有40%/50%/60%/70%/80%概率重置元素战技的冷却时间，每30秒最多触发一次。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★★</p>
+                    </div>
+                </div>
+                
+                <!-- 推荐武器2 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">雾切之回光</h3>
+                            <p class="text-primary">五星 单手剑</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">674（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">暴击伤害</p>
+                            <p class="text-primary">44.1%（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">顶级输出武器，提供高额暴击伤害和元素伤害加成，大幅提升行秋的爆发输出能力。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">装备者处于水元素影响下时，攻击力提升12%/15%/18%/21%/24%。此外，元素战技造成的伤害提升32%/40%/48%/56%/64%。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★★</p>
+                    </div>
+                </div>
+                
+                <!-- 推荐武器3 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">匣里龙吟</h3>
+                            <p class="text-primary">四星 单手剑</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">510（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">暴击率</p>
+                            <p class="text-primary">24%（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">适合输出向行秋，提供高额暴击率和元素反应伤害加成，尤其适合蒸发、感电等反应队伍。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">普通攻击造成的伤害提升16%/20%/24%/28%/32%；触发元素反应后的8秒内，攻击力提升32%/40%/48%/56%/64%。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★☆</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 圣遗物推荐 -->
+    <section id="artifacts" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">圣遗物推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 主套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">绝缘之旗印</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">行秋的主流圣遗物套装，能有效提升元素爆发伤害和元素充能效率，最大化「秋水共长天」的输出。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：元素充能效率提高20%。</li>
+                            <li>4件套：基于元素充能效率的25%，提高元素爆发造成的伤害。至多通过这种方式获得75%提升。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">水元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">水元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素充能效率>暴击率>暴击伤害>攻击力</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 备选套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">水套</h4>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">适合追求极致水元素伤害的行秋，能大幅提升水元素反应伤害，但需要注意元素充能问题。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：水元素伤害加成提高15%。</li>
+                            <li>4件套：对处于水元素影响下的敌人，造成的伤害提高30%。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">水元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">水元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素充能效率>暴击率>暴击伤害>攻击力</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 培养方案 -->
+    <section id="builds" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">培养方案</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 辅助型 -->
+                <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4">辅助型行秋</h3>
+                    <p class="text-gray-600 mb-4">专注于元素充能和持续挂水，适合作为队伍中的副C兼后台水元素提供者，配合火系或雷系角色触发元素反应。</p>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">元素充能效率</p>
+                                <p class="text-lg font-bold text-primary">200%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击率</p>
+                                <p class="text-lg font-bold text-primary">50%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击伤害</p>
+                                <p class="text-lg font-bold text-primary">100%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">水元素伤害加成</p>
+                                <p class="text-lg font-bold text-primary">30%+</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                        </h4>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">生之花</p>
+                                <p class="text-sm font-medium text-primary">生命值</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">死之羽</p>
+                                <p class="text-sm font-medium text-primary">攻击力</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">时之沙</p>
+                                <p class="text-sm font-medium text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">空之杯</p>
+                                <p class="text-sm font-medium text-primary">水元素伤害加成</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">理之冠</p>
+                                <p class="text-sm font-medium text-primary">暴击率</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                        </h4>
+                        <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                            <li>元素充能效率</li>
+                            <li>暴击率</li>
+                            <li>暴击伤害</li>
+                            <li>攻击力百分比</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">普通攻击</p>
+                                <p class="text-sm font-medium text-primary">6+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素战技</p>
+                                <p class="text-sm font-medium text-primary">8+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素爆发</p>
+                                <p class="text-sm font-medium text-primary">10+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 输出型 -->
+                <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4">输出型行秋</h3>
+                    <p class="text-gray-600 mb-4">专注于提升水元素伤害和反应伤害，适合作为队伍中的主C或副C角色，通过蒸发或感电反应造成高额伤害。</p>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">元素充能效率</p>
+                                <p class="text-lg font-bold text-primary">180%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击率</p>
+                                <p class="text-lg font-bold text-primary">60%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击伤害</p>
+                                <p class="text-lg font-bold text-primary">120%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">水元素伤害加成</p>
+                                <p class="text-lg font-bold text-primary">50%+</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                        </h4>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">生之花</p>
+                                <p class="text-sm font-medium text-primary">生命值</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">死之羽</p>
+                                <p class="text-sm font-medium text-primary">攻击力</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">时之沙</p>
+                                <p class="text-sm font-medium text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">空之杯</p>
+                                <p class="text-sm font-medium text-primary">水元素伤害加成</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">理之冠</p>
+                                <p class="text-sm font-medium text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                        </h4>
+                        <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                            <li>暴击率/暴击伤害</li>
+                            <li>元素充能效率</li>
+                            <li>攻击力百分比</li>
+                            <li>水元素伤害加成</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">普通攻击</p>
+                                <p class="text-sm font-medium text-primary">6+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素战技</p>
+                                <p class="text-sm font-medium text-primary">9+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素爆发</p>
+                                <p class="text-sm font-medium text-primary">10+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+            <p>© 2025 原神 Wiki. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 导航栏滚动效果
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section[id]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // 关闭移动菜单（如果打开）
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

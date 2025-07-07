@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神 - 久崎忍</title>
+    <script src="../js/原神.js"></script>
+    <link href="../css/原神.css" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #7E57C2; /* 久崎忍紫色 */
+            --color-secondary: #4CAF50; /* 久崎忍绿色/青色 */
+            --color-dark: #232931;
+            --color-light: #EEEEEE;
+            --font-inter: 'Inter', sans-serif;
+        }
+        
+        @utility smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        
+        @utility content-auto {
+            content-visibility: auto;
+        }
+        
+        @utility card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        }
+        
+        @utility nav-active {
+            @apply border-b-2 border-primary text-primary;
+        }
+        
+        body {
+            font-family: var(--font-inter);
+            background-color: var(--color-light);
+            color: var(--color-dark);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--color-primary);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            box-shadow:  10px 10px 20px #d9d9d9, 
+                         -10px -10px 20px #ffffff;
+        }
+        
+        .stat-card-dark {
+            background: linear-gradient(145deg, #1e1e2e, #121220);
+            box-shadow:  10px 10px 20px #10101d, 
+                         -10px -10px 20px #2a2a40;
+            color: var(--color-light);
+        }
+        
+        .weapon-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .element-icon {
+            filter: drop-shadow(0 0 8px rgba(126, 87, 194, 0.7));
+        }
+        
+        .skill-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(126, 87, 194, 0.2), transparent);
+            transition: left 0.6s ease-in-out;
+        }
+        
+        .skill-card:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <!-- 顶部导航条 -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div>
+                   <a href="../原神主页/原神主页.html"><h1 class="text-xl font-bold text-primary">原神 - 久崎忍</h1></a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#intro" class="nav-link active text-dark hover:text-primary transition-colors">角色介绍</a>
+                    <a href="#skills" class="nav-link text-dark hover:text-primary transition-colors">技能介绍</a>
+                    <a href="#weapons" class="nav-link text-dark hover:text-primary transition-colors">武器推荐</a>
+                    <a href="#artifacts" class="nav-link text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                    <a href="#builds" class="nav-link text-dark hover:text-primary transition-colors">培养方案</a>
+                </div>
+                <button class="md:hidden text-dark focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white shadow-lg absolute w-full" id="mobile-menu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#intro" class="py-2 text-dark hover:text-primary transition-colors">角色介绍</a>
+                <a href="#skills" class="py-2 text-dark hover:text-primary transition-colors">技能介绍</a>
+                <a href="#weapons" class="py-2 text-dark hover:text-primary transition-colors">武器推荐</a>
+                <a href="#artifacts" class="py-2 text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                <a href="#builds" class="py-2 text-dark hover:text-primary transition-colors">培养方案</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄Banner -->
+    <section class="pt-24 pb-16 bg-gradient-to-br from-primary/10 to-secondary/20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="text-4xl md:text-5xl font-bold text-dark mb-4">久崎忍</h2>
+                    <p class="text-lg text-gray-600 mb-6">「荒泷派」的二把手，精通雷元素的忍者，以冷静和可靠著称</p>
+                    <div class="flex space-x-4">
+                        <span class="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium flex items-center">
+                            <i class="fa-solid fa-bolt mr-2 element-icon"></i>雷元素
+                        </span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">双手剑</span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">四星</span>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="久岐忍.jpg" alt="久崎忍" class="w-64 md:w-80 rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 角色介绍 -->
+    <section id="intro" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">角色介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-dark mb-4">「荒泷派」的智囊</h3>
+                    <p class="text-gray-600 mb-4">久崎忍是活跃于稻妻城的「荒泷派」二把手，虽然名义上是帮派成员，但她的智慧和冷静与帮派的喧闹风格形成鲜明对比。</p>
+                    <p class="text-gray-600 mb-4">作为一名忍者，她精通雷元素之力，擅长使用双手剑进行战斗。在荒泷一斗冲动行事时，她总是能保持冷静，用理性的思考为帮派解决问题。</p>
+                    <h3 class="text-xl font-bold text-dark mb-4 mt-8">角色故事</h3>
+                    <p class="text-gray-600 mb-4">久崎忍曾是一名正经的忍者，家族没落后来到稻妻城。在一次意外中与荒泷一斗相遇，被其「纯粹的笨蛋气质」所吸引，最终加入荒泷派，成为帮派中不可或缺的智囊。</p>
+                    <p class="text-gray-600 mb-4">她的存在不仅为荒泷派提供了战斗上的支持，更在日常事务中处理着各种麻烦，是荒泷派真正的「运营者」。</p>
+                </div>
+                <div class="flex justify-center">
+                    <img src="久岐忍立绘.jpg" alt="久崎忍插画" class="w-full max-w-md rounded-xl shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能介绍 -->
+    <section id="skills" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">技能介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 普通攻击 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">普通攻击</h3>
+                            <p class="text-primary">影打·诸相演武</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">进行至多五段的连续挥砍，造成物理伤害与雷元素伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">技能伤害</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>一段伤害：50.2% 攻击力</li>
+                        <li>二段伤害：52.4% 攻击力</li>
+                        <li>三段伤害：68.3% 攻击力</li>
+                        <li>四段伤害：72.6% 攻击力</li>
+                        <li>五段伤害：91.5% 攻击力 + 45.8% 攻击力（雷元素）</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素战技 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素战技</h3>
+                            <p class="text-primary">雷织·暗羽解阵</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">久崎忍施展忍术，投掷苦无造成雷元素范围伤害，并生成「雷织」领域。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：165.3% 攻击力（雷元素）</li>
+                        <li>雷织领域：对领域内的敌人造成持续雷元素伤害，并为领域内的角色提供基于久崎忍防御力的治疗</li>
+                        <li>冷却时间：12秒</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素爆发 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素爆发</h3>
+                            <p class="text-primary">雷罚·恶曜开眼</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">久崎忍释放强大的雷元素力量，对大范围敌人造成高额雷元素伤害，并进入「雷罚」状态。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：320.5% 攻击力（雷元素）</li>
+                        <li>雷罚状态：普通攻击与重击会附带雷元素伤害，持续15秒</li>
+                        <li>能量消耗：80点</li>
+                        <li>冷却时间：20秒</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 武器推荐 -->
+    <section id="weapons" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">武器推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 推荐武器1 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">西风大剑</h3>
+                            <p class="text-primary">四星 双手剑</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">565（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素充能效率</p>
+                            <p class="text-primary">30.6%（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">提供高额元素充能效率，适合需要频繁释放元素爆发的久崎忍，同时能为队伍提供能量。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">暴击命中时，有60%/70%/80%/90%/100%的概率产生少量元素微粒，能为角色恢复6点元素能量。该效果每12秒只能触发一次。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★★</p>
+                    </div>
+                </div>
+                
+                <!-- 推荐武器2 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">祭礼大剑</h3>
+                            <p class="text-primary">四星 双手剑</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">510（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素充能效率</p>
+                            <p class="text-primary">30.6%（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">提供元素充能效率，适合需要频繁使用元素战技的场合，能有效缩短技能冷却时间。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">元素战技造成伤害时，有40%/50%/60%/70%/80%概率重置元素战技的冷却时间，每30秒最多触发一次。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★☆</p>
+                    </div>
+                </div>
+                
+                <!-- 推荐武器3 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">雨裁</h3>
+                            <p class="text-primary">四星 双手剑</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">510（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素精通</p>
+                            <p class="text-primary">165（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">提供元素精通加成，适合提升雷元素反应伤害，对感电、超载等反应有较好提升。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">对水元素或雷元素影响下的敌人，造成的伤害提高20%/25%/30%/35%/40%。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★☆</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 圣遗物推荐 -->
+    <section id="artifacts" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">圣遗物推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 主套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">绝缘之旗印</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">久崎忍的主流圣遗物套装，能有效提升元素爆发伤害和元素充能效率。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：元素充能效率提高20%。</li>
+                            <li>4件套：基于元素充能效率的25%，提高元素爆发造成的伤害。至多通过这种方式获得75%提升。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">雷元素伤害加成/防御力</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">雷元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素充能效率>暴击率>暴击伤害>防御力</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 备选套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">千岩牢固</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">适合辅助型久崎忍，能提升队伍生存能力和攻击力，同时增强自身治疗效果。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：生命值提高20%。</li>
+                            <li>4件套：元素战技命中敌人后，队伍中所有角色攻击力提升20%，护盾强效提升30%，持续3秒。该效果每0.5秒至多触发一次。装备此圣遗物套装的角色处于队伍后台时，效果依然生效。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素充能效率/防御力</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">雷元素伤害加成/防御力</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">雷元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">暴击率/暴击伤害</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素充能效率>防御力>暴击率>暴击伤害</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 培养方案 -->
+<section id="builds" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-dark mb-10 text-center">培养方案</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 辅助治疗型 -->
+            <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-xl font-bold text-dark mb-4">辅助治疗型久崎忍</h3>
+                <p class="text-gray-600 mb-4">专注于元素充能和治疗能力，适合作为队伍中的副C兼治疗角色，提供持续雷元素附着和生命恢复。</p>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">元素充能效率</p>
+                            <p class="text-lg font-bold text-primary">200%+</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">防御力</p>
+                            <p class="text-lg font-bold text-primary">1800+</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">暴击率</p>
+                            <p class="text-lg font-bold text-primary">50%+</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">雷元素伤害加成</p>
+                            <p class="text-lg font-bold text-primary">30%+</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                    </h4>
+                    <div class="grid grid-cols-5 gap-2 text-center">
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">生之花</p>
+                            <p class="text-sm font-medium text-primary">生命值</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">死之羽</p>
+                            <p class="text-sm font-medium text-primary">攻击力</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">时之沙</p>
+                            <p class="text-sm font-medium text-primary">元素充能效率</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">空之杯</p>
+                            <p class="text-sm font-medium text-primary">防御力</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">理之冠</p>
+                            <p class="text-sm font-medium text-primary">暴击率</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                    </h4>
+                    <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                        <li>元素充能效率</li>
+                        <li>防御力</li>
+                        <li>暴击率</li>
+                        <li>暴击伤害</li>
+                    </ol>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                    </h4>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">普通攻击</p>
+                            <p class="text-sm font-medium text-primary">6+</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">元素战技</p>
+                            <p class="text-sm font-medium text-primary">8+</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">元素爆发</p>
+                            <p class="text-sm font-medium text-primary">10+</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 输出型 -->
+            <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-xl font-bold text-dark mb-4">输出型久崎忍</h3>
+                <p class="text-gray-600 mb-4">专注于提升雷元素伤害和反应伤害，适合作为队伍中的副C角色，通过超绽放或激化反应造成高额伤害。</p>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">元素充能效率</p>
+                            <p class="text-lg font-bold text-primary">180%+</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">暴击率</p>
+                            <p class="text-lg font-bold text-primary">60%+</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">暴击伤害</p>
+                            <p class="text-lg font-bold text-primary">120%+</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-500">雷元素伤害加成</p>
+                            <p class="text-lg font-bold text-primary">50%+</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                    </h4>
+                    <div class="grid grid-cols-5 gap-2 text-center">
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">生之花</p>
+                            <p class="text-sm font-medium text-primary">生命值</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">死之羽</p>
+                            <p class="text-sm font-medium text-primary">攻击力</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">时之沙</p>
+                            <p class="text-sm font-medium text-primary">元素充能效率</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">空之杯</p>
+                            <p class="text-sm font-medium text-primary">雷元素伤害加成</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">理之冠</p>
+                            <p class="text-sm font-medium text-primary">暴击率/暴击伤害</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                    </h4>
+                    <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                        <li>暴击率/暴击伤害</li>
+                        <li>元素充能效率</li>
+                        <li>攻击力百分比</li>
+                        <li>雷元素伤害加成</li>
+                    </ol>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-dark mb-3 flex items-center">
+                        <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                    </h4>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">普通攻击</p>
+                            <p class="text-sm font-medium text-primary">6+</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">元素战技</p>
+                            <p class="text-sm font-medium text-primary">9+</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm">
+                            <p class="text-xs text-gray-500">元素爆发</p>
+                            <p class="text-sm font-medium text-primary">10+</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>                     
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+            <p>© 2025 原神 Wiki. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 导航栏滚动效果
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section[id]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // 关闭移动菜单（如果打开）
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

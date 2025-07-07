@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神 - 纳西妲</title>
+    <script src="../js/原神.js"></script>
+    <link href="../css/原神.css" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #4ECCA3; /* 纳西妲绿色 */
+            --color-secondary: #8A79D9; /* 辅助紫色 */
+            --color-dark: #232931;
+            --color-light: #EEEEEE;
+            --font-inter: 'Inter', sans-serif;
+        }
+        
+        @utility smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        
+        @utility content-auto {
+            content-visibility: auto;
+        }
+        
+        @utility card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        }
+        
+        @utility nav-active {
+            @apply border-b-2 border-primary text-primary;
+        }
+        
+        body {
+            font-family: var(--font-inter);
+            background-color: var(--color-light);
+            color: var(--color-dark);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--color-primary);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            box-shadow:  10px 10px 20px #d9d9d9, 
+                         -10px -10px 20px #ffffff;
+        }
+        
+        .stat-card-dark {
+            background: linear-gradient(145deg, #1e1e2e, #121220);
+            box-shadow:  10px 10px 20px #10101d, 
+                         -10px -10px 20px #2a2a40;
+            color: var(--color-light);
+        }
+        
+        .weapon-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .element-icon {
+            filter: drop-shadow(0 0 8px rgba(78, 204, 163, 0.7));
+        }
+        
+        .skill-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(78, 204, 163, 0.2), transparent);
+            transition: left 0.6s ease-in-out;
+        }
+        
+        .skill-card:hover::before {
+            left: 100%;
+        }
+        
+        /* 属性面板样式 */
+        .stat-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .stat-box {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .stat-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .stat-list {
+            list-style: none;
+            padding: 0;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        .stat-name {
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: var(--color-dark);
+        }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <!-- 顶部导航条 -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="../原神主页/原神主页.html"><h1 class="text-xl font-bold text-primary">原神 - 纳西妲</h1></a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#intro" class="nav-link active text-dark hover:text-primary transition-colors">角色介绍</a>
+                    <a href="#skills" class="nav-link text-dark hover:text-primary transition-colors">技能介绍</a>
+                    <a href="#weapons" class="nav-link text-dark hover:text-primary transition-colors">武器推荐</a>
+                    <a href="#artifacts" class="nav-link text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                    <a href="#builds" class="nav-link text-dark hover:text-primary transition-colors">培养方案</a>
+                </div>
+                <button class="md:hidden text-dark focus:outline-none" id="mobile-menu-button">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white shadow-lg absolute w-full" id="mobile-menu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#intro" class="py-2 text-dark hover:text-primary transition-colors">角色介绍</a>
+                <a href="#skills" class="py-2 text-dark hover:text-primary transition-colors">技能介绍</a>
+                <a href="#weapons" class="py-2 text-dark hover:text-primary transition-colors">武器推荐</a>
+                <a href="#artifacts" class="py-2 text-dark hover:text-primary transition-colors">圣遗物推荐</a>
+                <a href="#builds" class="py-2 text-dark hover:text-primary transition-colors">培养方案</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄Banner -->
+    <section class="pt-24 pb-16 bg-gradient-to-br from-primary/10 to-secondary/20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="text-4xl md:text-5xl font-bold text-dark mb-4">纳西妲</h2>
+                    <p class="text-lg text-gray-600 mb-6">「智慧」的神明，须弥的统治者，被须弥人尊称为「小吉祥草王」</p>
+                    <div class="flex space-x-4">
+                        <span class="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium flex items-center">
+                            <i class="fa-solid fa-leaf mr-2 element-icon"></i>草元素
+                        </span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">法器</span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">五星</span>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="纳西妲.jpg" alt="纳西妲" class="w-64 md:w-80 rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 角色介绍 -->
+    <section id="intro" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">角色介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-dark mb-4">「智慧」的神明</h3>
+                    <p class="text-gray-600 mb-4">纳西妲是须弥的「小吉祥草王」，也是尘世七执政中最年轻的一位。她诞生于世界树之下，代表着「智慧」的权柄。</p>
+                    <p class="text-gray-600 mb-4">尽管外表是少女模样，但她拥有着超越凡人理解的智慧与知识。她关心着须弥的每一位子民，致力于引导他们追求真正的智慧，而非被虚假的知识所蒙蔽。</p>
+                    <h3 class="text-xl font-bold text-dark mb-4 mt-8">角色故事</h3>
+                    <p class="text-gray-600 mb-4">纳西妲的诞生与世界树有着密切的联系，她是世界树在提瓦特大陆的具象化体现之一。在漫长的岁月中，她见证了须弥的兴衰，也经历了许多不为人知的故事。</p>
+                    <p class="text-gray-600 mb-4">她的存在本身就是一个谜，关于她的过去、她的力量来源，以及她在提瓦特大陆未来的角色，都等待着旅行者去探索和发现。</p>
+                </div>
+                <div class="flex justify-center">
+                    <img src="纳西妲立绘.jpg" alt="纳西妲插画" class="w-full max-w-md rounded-xl shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能介绍 -->
+    <section id="skills" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">技能介绍</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 普通攻击 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">普通攻击</h3>
+                            <p class="text-primary">浮莲剑舞</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">进行至多四段的连续剑击，造成草元素伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">技能伤害</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>一段伤害：102.4% 攻击力</li>
+                        <li>二段伤害：98.2% 攻击力</li>
+                        <li>三段伤害：120.3% 攻击力</li>
+                        <li>四段伤害：135.7% 攻击力</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素战技 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素战技</h3>
+                            <p class="text-primary">真识·三业清净</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">纳西妲释放智慧的力量，在敌人周围生成草环，对范围内敌人造成草元素伤害，并为队伍提供元素精通加成。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：235.6% 攻击力</li>
+                        <li>元素精通加成：120点（持续12秒）</li>
+                        <li>冷却时间：10秒</li>
+                    </ul>
+                </div>
+                
+                <!-- 元素爆发 -->
+                <div class="skill-card bg-white rounded-xl shadow-md p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">元素爆发</h3>
+                            <p class="text-primary">大慈树王的教诲</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">纳西妲召唤大慈树王的力量，对大范围敌人造成高额草元素伤害，并为队伍施加「智慧的加护」状态。</p>
+                    <h4 class="font-bold text-dark mb-2">技能效果</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>基础伤害：480.3% 攻击力</li>
+                        <li>智慧的加护：队伍中所有角色元素精通提升200点，持续15秒</li>
+                        <li>能量消耗：80点</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 武器推荐 -->
+    <section id="weapons" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">武器推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 专武 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">千夜浮梦</h3>
+                            <p class="text-primary">五星 法器</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">608（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素精通</p>
+                            <p class="text-primary">221（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">纳西妲的专属武器，能极大提升元素精通和元素战技、元素爆发的伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">角色元素精通提升，并根据队伍中不同元素类型的角色数量，进一步提升元素战技与元素爆发的伤害：</p>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1 text-sm">
+                        <li>1个不同元素：元素战技与元素爆发伤害提升16%</li>
+                        <li>2个不同元素：元素战技与元素爆发伤害提升28%</li>
+                        <li>3个及以上不同元素：元素战技与元素爆发伤害提升40%</li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★★</p>
+                    </div>
+                </div>
+                
+                <!-- 次选武器1 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">流浪的晚星</h3>
+                            <p class="text-primary">四星 法器</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">565（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素精通</p>
+                            <p class="text-primary">165（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">高元素精通加成，适合辅助型纳西妲，能有效提升草元素反应伤害。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">元素精通提升80点。普通攻击命中敌人时，有50%概率发射一枚造成（80%/100%/120%/140%/160%）攻击力的法球，每10秒只能触发一次。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★☆</p>
+                    </div>
+                </div>
+                
+                <!-- 次选武器2 -->
+                <div class="weapon-card rounded-xl p-6 card-hover border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">祭礼残章</h3>
+                            <p class="text-primary">四星 法器</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">基础攻击力</p>
+                            <p class="text-primary">510（90级）</p>
+                        </div>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                            <p class="font-medium text-dark">元素精通</p>
+                            <p class="text-primary">165（90级）</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">提供元素精通和元素充能效率，适合需要频繁释放元素爆发的场合。</p>
+                    <h4 class="font-bold text-dark mb-2">武器特效</h4>
+                    <p class="text-gray-600 text-sm">元素战技造成伤害时，有40%/50%/60%/70%/80%概率重置元素战技的冷却时间，每30秒最多触发一次。</p>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500"><i class="fas fa-star text-yellow-400"></i> 满级满精推荐度：★★★★☆</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 圣遗物推荐 -->
+    <section id="artifacts" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">圣遗物推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 主套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">深林的记忆</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">纳西妲的毕业圣遗物套装，能有效降低敌人的草元素抗性，提升全队草元素反应伤害。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：元素精通提高80点。</li>
+                            <li>4件套：元素战技或元素爆发命中后，降低附近敌人30%的草元素抗性，持续8秒。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素精通/元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">草元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">元素精通/暴击率</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素精通</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">草元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">元素精通/暴击率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素精通>暴击率>暴击伤害>元素充能效率</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 备选套装 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-dark">饰金之梦</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">适合元素精通流派的纳西妲，能进一步提升元素精通和草元素反应伤害。</p>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">套装效果</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>2件套：元素精通提高80点。</li>
+                            <li>4件套：元素战技或元素爆发造成的伤害提升35%。</li>
+                        </ul>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-dark mb-2">具体属性</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">生之花</p>
+                                <p class="text-primary">固定生命值+1200</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">死之羽</p>
+                                <p class="text-primary">固定攻击力+311</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">时之沙</p>
+                                <p class="text-primary">元素精通/元素充能效率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">空之杯</p>
+                                <p class="text-primary">草元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">理之冠</p>
+                                <p class="text-primary">元素精通/暴击率</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-dark mb-2">词条推荐</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">沙漏</p>
+                                <p class="text-primary">元素精通</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">杯子</p>
+                                <p class="text-primary">草元素伤害加成</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">头冠</p>
+                                <p class="text-primary">元素精通/暴击率</p>
+                            </div>
+                            <div class="bg-gray-100 p-2 rounded-lg text-sm">
+                                <p class="font-medium text-dark">副词条</p>
+                                <p class="text-primary">元素精通>暴击率>暴击伤害>元素充能效率</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 培养方案 -->
+    <section id="builds" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-dark mb-10 text-center">培养方案</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 辅助型 -->
+                <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4">辅助型纳西妲</h3>
+                    <p class="text-gray-600 mb-4">专注于元素精通和团队增伤，适合作为队伍中的核心辅助角色。</p>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">元素精通</p>
+                                <p class="text-lg font-bold text-primary">1000+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">元素充能效率</p>
+                                <p class="text-lg font-bold text-primary">130%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击率</p>
+                                <p class="text-lg font-bold text-primary">40%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">草元素伤害加成</p>
+                                <p class="text-lg font-bold text-primary">46.6%+</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                        </h4>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">生之花</p>
+                                <p class="text-sm font-medium text-primary">生命值</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">死之羽</p>
+                                <p class="text-sm font-medium text-primary">攻击力</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">时之沙</p>
+                                <p class="text-sm font-medium text-primary">元素精通</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">空之杯</p>
+                                <p class="text-sm font-medium text-primary">草元素伤害</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">理之冠</p>
+                                <p class="text-sm font-medium text-primary">元素精通</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                        </h4>
+                        <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                            <li>元素精通</li>
+                            <li>暴击率</li>
+                            <li>暴击伤害</li>
+                            <li>元素充能效率</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">普通攻击</p>
+                                <p class="text-sm font-medium text-primary">6+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素战技</p>
+                                <p class="text-sm font-medium text-primary">9+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素爆发</p>
+                                <p class="text-sm font-medium text-primary">10+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 输出型 -->
+                <div class="bg-gradient-to-br from-primary/5 to-secondary/10 rounded-xl shadow-md p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4">输出型纳西妲</h3>
+                    <p class="text-gray-600 mb-4">兼顾元素精通和伤害，能够作为队伍中的副C角色，提供稳定的草元素伤害输出。</p>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-diamond text-primary mr-2"></i>毕业属性需求
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">元素精通</p>
+                                <p class="text-lg font-bold text-primary">800+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击率</p>
+                                <p class="text-lg font-bold text-primary">50%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">暴击伤害</p>
+                                <p class="text-lg font-bold text-primary">120%+</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">草元素伤害加成</p>
+                                <p class="text-lg font-bold text-primary">46.6%+</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-shield text-primary mr-2"></i>圣遗物主词条
+                        </h4>
+                        <div class="grid grid-cols-5 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">生之花</p>
+                                <p class="text-sm font-medium text-primary">生命值</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">死之羽</p>
+                                <p class="text-sm font-medium text-primary">攻击力</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">时之沙</p>
+                                <p class="text-sm font-medium text-primary">元素精通</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">空之杯</p>
+                                <p class="text-sm font-medium text-primary">草元素伤害</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">理之冠</p>
+                                <p class="text-sm font-medium text-primary">暴击率</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-sort text-primary mr-2"></i>副词条优先级
+                        </h4>
+                        <ol class="list-decimal pl-5 space-y-1 text-gray-600">
+                            <li>元素精通</li>
+                            <li>暴击率</li>
+                            <li>暴击伤害</li>
+                            <li>攻击力百分比</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-primary mr-2"></i>天赋等级推荐
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">普通攻击</p>
+                                <p class="text-sm font-medium text-primary">6+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素战技</p>
+                                <p class="text-sm font-medium text-primary">10+</p>
+                            </div>
+                            <div class="bg-white p-2 rounded-lg shadow-sm">
+                                <p class="text-xs text-gray-500">元素爆发</p>
+                                <p class="text-sm font-medium text-primary">10+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+            <p>© 2025 原神 版权所有</p>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 导航栏滚动效果
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section[id]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // 关闭移动菜单（如果打开）
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
